@@ -1,0 +1,1 @@
+../rtl/crc32_accelerator_p.sv

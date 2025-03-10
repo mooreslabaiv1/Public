@@ -1,0 +1,47 @@
+Here is a detailed test plan for the `crc32_accelerator_p` design module, which includes 8 test cases:
+
+### Test Case 1
+- **Name:** Multiple Byte Sequence
+- **Description:** Validate the CRC calculation for a sequence of bytes.
+- **Expectation:** The CRC calculated should match the expected result for the sequence.
+- **Steps:**
+  1. Input a sequence of 'Hello World\n', with `data_valid` asserted for each byte.
+  2. After the last byte, check `crc_valid`.
+  3. Validate that `crc_out` matches the CRC of the entire sequence.
+
+### Test Case 2
+- **Name:** Idle State Maintenance
+- **Description:** Ensure the module maintains consistent state when no data is provided.
+- **Expectation:** `crc` and `crc_valid` should remain unchanged when `data_valid` is low.
+- **Steps:**
+  1. Send 5 valid data transactions.
+  2. Hold `data_valid` low.
+  3. Monitor `crc` and `crc_valid`.
+  4. Verify no changes occur to these signals when no data is inputted.
+  5. Send 5 more valid data transactions.
+
+### Test Case 3
+- **Name:** All zeros
+- **Description:** Check behavior when all the input data is 0.
+- **Expectation:** The module should only process the input data and exhibit valid CRC.
+- **Steps:**
+  1. Send 5 valid data transactions.
+  2. Hold `data_valid` low.
+
+### Test Case 4
+- **Name:** All ones
+- **Description:** Check behavior when all the input data is 0xFF.
+- **Expectation:** The module should only process the input data and exhibit valid CRC.
+- **Steps:**
+  1. Send 5 valid data transactions.
+  2. Hold `data_valid` low.
+
+### Test Case 5
+- **Name:** Reset Behavior
+- **Description:** Check if the CRC module initializes correctly on reset.
+- **Expectation:** When the `rst` signal is high, the `crc` register should reset to `0xFFFFFFFF`, `count` to 0, and `crc_valid` should be low.
+- **Steps:**
+  1. Add a conditional code based on UVM_TEST to assert reset for 5 clock cyles, deassert for 10 clock cyles, assert for 5 clock cycles and then deassert to the testbench top file.
+  2. The test must run atleast 20 transactions.
+  3. Verify that `crc` is set to `0xFFFFFFFF`, `count` is 0, and `crc_valid` is low.
+  4. Make sure that all the previous testcases are still functional.
