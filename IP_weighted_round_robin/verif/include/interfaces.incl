@@ -1,0 +1,5 @@
+
+    `include "weighted_round_robin_requestor_if.sv"
+    
+    `include "weighted_round_robin_prio_update_if.sv"
+    

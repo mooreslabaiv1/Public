@@ -1,0 +1,26 @@
+
+
+
+
+
+    `include "weighted_round_robin_requestor_agent_transaction.sv" 
+
+    `include "weighted_round_robin_priority_update_agent_transaction.sv" 
+
+    `include "weighted_round_robin_requestor_agent_base_seqr.sv" 
+
+    `include "weighted_round_robin_priority_update_agent_base_seqr.sv" 
+
+    `include "weighted_round_robin_sequence_library.sv"
+    
+    `include "weighted_round_robin_requestor_if_requestor_driver.sv" 
+
+    `include "weighted_round_robin_prio_update_if_prio_update_driver.sv" 
+
+    `include "weighted_round_robin_requestor_if_requestor_monitor.sv" 
+
+    `include "weighted_round_robin_prio_update_if_prio_update_monitor.sv" 
+
+    `include "weighted_round_robin_requestor_agent.sv"             
+
+    `include "weighted_round_robin_priority_update_agent.sv"             

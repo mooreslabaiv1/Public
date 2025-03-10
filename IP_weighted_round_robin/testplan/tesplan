@@ -1,0 +1,88 @@
+### Test Case 1
+- **Name:** Basic Functionality Test
+- **Description:** This test verifies basic round-robin functionality without any weights. Each requester should receive equal access, cycling through each in turn.
+- **Expectation:** All requestors receive one grant per cycle. This means gnt_w should activate sequentially for each requestor.
+- **Steps:**
+  1. Set all request weights to the same value.
+  2. Assert all requests.
+  3. Monitor gnt_w. Ensure each request is granted in a round-robin fashion over several cycles.
+
+### Test Case 2
+- **Name:** Weighted Priority Test
+- **Description:** This test assigns higher weights to certain requestors, expecting them to receive more grants.
+- **Expectation:** Higher-weighted requestors should receive grants more frequently relative to lower-weighted requestors.
+- **Steps:**
+  1. Assign different weights to each requestor.
+  2. Assert all requests.
+  3. Check gnt_w over a set number of cycles to confirm frequency aligns with weights.
+
+### Test Case 3
+- **Name:** Dynamic Update Test
+- **Description:** This test checks the system’s ability to handle dynamic weight updates while running.
+- **Expectation:** Updated priorities should immediately affect arbitration results in subsequent cycles.
+- **Steps:**
+  1. Start with equal weights for all requestors.
+  2. Begin arbitration and let it run for several cycles.
+  3. Change weights dynamically using the prio, prio_id, and prio_upt inputs.
+  4. Verify that the change reflects in gnt_w within the next few cycles.
+
+### Test Case 4
+- **Name:** Grant Acknowledgment Test
+- **Description:** Tests the impact of grant acknowledgment on subsequent arbitration cycles.
+- **Expectation:** Acknowledging a grant should advance the arbitration cycle and influence subsequent grant decisions.
+- **Steps:**
+  1. Begin arbitration with predefined weights.
+  2. Assert requests and observe grant signal gnt_w.
+  3. Send an acknowledgment (ack) upon receiving a grant.
+  4. Check that the grant pointer advances and grants subsequent requests based on cycle logic【4:0†source】.
+
+### Test Case 5
+- **Name:** Starvation Risk Test
+- **Description:** Ensures that no requestor is starved over an extended period, even when other requestors have higher weights.
+- **Expectation:** All requestors should receive grants eventually over a prolonged test period.
+- **Steps:**
+  1. Assign weights such that some requestors are favored.
+  2. Continuously assert requests.
+  3. Run for an extended number of cycles and log grants (gnt_w).
+  4. Verify that all requestors have received grants over the period.
+
+### Test Case 6
+- **Name:** Randomized Stress Test
+- **Description:** This test applies random `req`, `prio`, `prio_id`, and `prio_upt` signals over an extended period to stress the arbiter.
+- **Expectation:** The arbiter should function correctly without entering any error states or producing invalid outputs under random and unpredictable conditions.
+- **Steps:**
+  1. Apply randomized inputs to `req`, `prio`, `prio_id`, and `prio_upt`.
+  2. Let the system run for a sufficient number of cycles.
+  3. Continuously monitor `gnt_w` and `gnt_id` to ensure valid and expected behavior (no lock-ups, no invalid grants).
+  4. Log and verify all outputs for correctness over the run.
+
+### Test Case 7
+- **Name:** Extreme Conditions Test
+- **Description:** This test evaluates the arbiter under two extremes: no requestors and all requestors simultaneously active.
+- **Expectation:**  
+  - When no requestors are active (`req = 4'b0000`), no grants should be issued.  
+  - When all requestors are active (`req = 4'b1111`), the arbiter should grant requests in a proper round-robin or weighted round-robin fashion according to the configured weights.
+- **Steps:**
+  1. Apply `req = 4'b0000` and observe `gnt_w` and `gnt_id` (expect `gnt_w = 4'b0000`, `gnt_id = 0`).
+  2. Then apply `req = 4'b1111`.
+  3. Ensure that grants cycle through all requestors, respecting priority or weights.
+  4. Log the outputs to confirm proper operation under both extremes.
+
+### Test Case 8
+- **Name:** Bursty Traffic Test
+- **Description:** This test applies bursts of requests with varying intervals to simulate sudden surges in traffic.
+- **Expectation:** The arbiter should continue distributing grants according to priority weights, without allowing any requestor to dominate unfairly during burst periods.
+- **Steps:**
+  1. Initialize priorities to `[3, 3, 2, 2]`.
+  2. Generate bursty traffic patterns on `req` (periods of high activity followed by low or no activity).
+  3. Observe `gnt_w` and `gnt_id` to verify that higher-priority requestors receive more frequent grants but lower-priority requestors are still granted eventually.
+  4. Confirm the arbiter smoothly handles bursts without dropping or delaying grants incorrectly.
+
+### Test Case 9
+- **Name:** Reset Functionality Test
+- **Description:** This verifies that the system correctly resets and resumes normal operation, maintaining fairness and priority allocation.
+- **Expectation:** After reset, the system should restart arbitration from a known initial state.
+- **Steps:**
+  1. Start arbitration with random weights and let it run for several cycles.
+  2. Assert the reset (rst) signal.
+  3. Release reset and verify that system resumes granting requests correctly without lingering state.
