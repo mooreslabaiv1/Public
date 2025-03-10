@@ -1,0 +1,55 @@
+### Architecture Specification Document
+
+#### Overview
+A priority encoder is a sequential circuit that, when given an input bit vector, outputs the position of the first `1` bit in the vector. For example, a 4-bit priority encoder given the input `4'b1001` would output `2'd0`, because bit[0] is the first bit that is high when the priority is evaluated from the least significant bit to the most significant bit.
+
+If none of the input bits are high (i.e., the input is zero), the output should be zero (`2'd0`). The module should also include a **clock** (`clk`) and an **asynchronous reset** (`reset`) signal. The final output must be stored in a flip-flop to ensure sequential behavior.
+
+---
+
+#### Key Features
+1. **Inputs:**
+   - `in`: A 4-bit vector representing the input to the priority encoder.
+   - `clk`: The clock signal to synchronize the output with the clock domain.
+   - `reset`: An asynchronous reset signal to reset the output to `2'd0`.
+
+2. **Outputs:**
+   - `pos`: A 2-bit vector representing the position of the first `1` bit in the input vector, stored in a flip-flop.
+
+3. **Behavior:**
+   - The priority encoder evaluates the position of the first `1` bit in the `in` vector, starting from the least significant bit (`in[0]`) and moving to the most significant bit (`in[3]`).
+   - The computed position is stored in a flip-flop and updated on the next rising edge of the clock.
+   - If `reset` is asserted, the output `pos` is immediately set to `2'd0`.
+
+4. **Edge Cases:**
+   - When `in` is `4'b0000`, the output `pos` is set to `2'd0`.
+   - If multiple bits are set in the input (e.g., `4'b1100`), the position of the least significant `1` bit (highest priority) is selected.
+
+---
+
+#### Module Declaration
+The module has the following declaration:
+```verilog
+// synthesis verilog_input_version verilog_2001
+module top_module (
+    input [3:0] in,
+    input clk,
+    input reset,
+    output reg [1:0] pos
+);
+```
+
+---
+
+#### Implementation Overview
+1. **Combinational Logic for Priority Encoding:**
+   - A combinational block is used to evaluate the input vector `in` and determine the position of the first `1` bit.
+
+2. **Sequential Logic:**
+   - The computed position is stored in a flip-flop.
+   - On the rising edge of the clock, the output `pos` is updated with the new value.
+
+3. **Asynchronous Reset:**
+   - The reset signal ensures that the output `pos` is set to `2'd0` regardless of the input vector.
+
+---

@@ -1,0 +1,62 @@
+
+### Test Case 1: Sequence Detection (1101)
+
+- **Name**: Sequence Detection - 1101
+- **Description**: Verify that the FSM correctly detects the input sequence `1101` and transitions through the states `S -> S1 -> S11 -> S110`.
+- **Expectation**: Upon detecting `1101`, FSM should move from `S` to `B0` state while asserting `shift_ena` by the time it reaches `B0`.
+- **Steps**:
+  1. Initialize the FSM in state `S`.
+  2. Provide input sequence: `d=1,1,0,1` sequentially, one bit per clock cycle.
+  3. Check state transitions: `S -> S1 -> S11 -> S110 -> B0`.
+  4. Verify `shift_ena=1` when FSM reaches state `B0`.
+
+### Test Case 2: Counting Operation & Handshake Protocol
+
+- **Name**: Post Sequence Detection Counting Operation & Handshake Protocol
+- **Description**: This test checks the `Count` state functionality after the bit sequence detection is complete & validates FSM behavior in the `Wait` state and transition back to `S` upon receiving `ack`.
+- **Expectation**: FSM should transition to `Count` state, assert `counting`, and wait for `done_counting` signal, should stay in `Wait` with `done=1` until `ack=1` is received, and then transition back to `S`.
+- **Steps**:
+  1. Following successful sequence detection, ensure FSM reaches `Count` after `B3`.
+  2. Assert `counting=1` in `Count` state.
+  3. Simulate external `done_counting=1` signal.
+  4. Validate FSM transitions to `Wait` state.
+  5. Verify `done=1`.
+  6. Provide `ack=1`.
+  7. Ensure FSM transitions to `S` with `done=0`, `counting=0`, and `shift_ena=0`.
+
+### Test Case 3: Full FSM Traversal
+
+- **Name**: Full FSM Traversal
+- **Description**: This test provides stimulus to detect 1101, then `Count` state and then to `Wait` state and transition back to `S` upon receiving `ack` and makes sure every valid path is covered in the given FSM.
+- **Expectation**: FSM should detect `1101` and go through B1-B3 and transit to `Count` state, assert `counting`, and wait for `done_counting` signal, should stay in `Wait` with `done=1` until `ack=1` is received, and then transition back to `S`.
+- **Steps**:
+  1. Initialize the FSM in state `S`.
+  2. Provide input sequence: `d=0,1,0,1,1,1,0,1` sequentially, one bit per clock cycle, ensure `B0` is reached.  
+  3. In the next 4 cycles `Count` state reached after `B3` state.
+  4. Assert `counting=1` in `Count` state.
+  5. Wait for a clock and force `done_counting=1` signal.
+  6. Validate FSM transitions to `Wait` state.
+  7. Verify `done=1`.
+  8. Wait for a clock and then `ack=1`.
+  9. Ensure FSM transitions to `S` with `done=0`, `counting=0`, and `shift_ena=0`.
+
+### Test Case 4: Invalid State Recovery
+
+- **Name**: Invalid State Recovery Mechanism
+- **Description**: Test the FSM's ability to recover from invalid or non-one-hot states.
+- **Expectation**: When in a non-one-hot state, FSM should transition back to state `S`.
+- **Steps**:
+  1. Force FSM into a non-one-hot invalid state.
+  2. Simulate a clock cycle and observe the transition.
+  3. Verify that FSM transitions to state `S` immediately.
+
+### Test Case 5: Reset Functionality
+
+- **Name**: Reset Functionality Check
+- **Description**: This test validates the synchronous reset behavior of the FSM. When the reset signal is activated, the FSM should return to the initial state `S` and deassert all outputs.
+- **Expectation**: Upon receiving a reset signal, FSM should transition to state `S` with `done=0`, `counting=0`, and `shift_ena=0`.
+- **Steps**:
+  1. Initialize the FSM in any arbitrary state.
+  2. Assert the reset signal for one clock cycle.
+  3. Verify that the FSM transitions to state `S`.
+  4. Ensure outputs `done=0`, `counting=0`, and `shift_ena=0` after the reset.

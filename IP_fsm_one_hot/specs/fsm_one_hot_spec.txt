@@ -1,0 +1,181 @@
+FSM IP Micro-Architecture Specification (Version 1.0)
+
+1. Overview
+This document specifies the micro-architecture for a configurable Finite State Machine (FSM) IP core designed for sequence detection (detecting 1101), bit counting, and handshaking protocols. The design uses one-hot state encoding for clear logic and faster timing closure in silicon.
+
+---------------------------------------------------------------------------------------
+2. Features
+    a) 3-bit input interface (d, done_counting, ack).
+    b) 3-bit output interface (done, counting, shift_ena).
+    c) 10-state one-hot finite state machine.
+    d) Sequence detector for pattern 1101.
+    e) 4-bit shift-count (B0–B3) prior to entering a counter state.
+    f) Handshaking protocol (Wait state) that waits for ack.
+    g) Synchronous reset returning FSM to initial state.
+    h) Built-in error-recovery for any invalid or non-one-hot states.
+
+---------------------------------------------------------------------------------------
+3. Interface Specification
+
+3.1 Input Ports
+| Port Name     | Width | Description                                       |
+|---------------|-------|---------------------------------------------------|
+| d             | 1     | Single-bit data input for sequence detection      |
+| done_counting | 1     | High when external counter has completed counting |
+| ack           | 1     | Handshake acknowledgment signal                   |
+| clk           | 1     | System clock                                      |
+| rst           | 1     | Active-high synchronous reset                     |
+
+3.2 Output Ports
+| Port Name   | Width | Description                                        |
+|-------------|-------|----------------------------------------------------|
+| done        | 1     | Operation completion indicator                     |
+| counting    | 1     | Indicates active counting in Count state           |
+| shift_ena   | 1     | Enable for internal shift register in B0–B3 states |
+
+---------------------------------------------------------------------------------------
+4. State Encoding
+A one-hot encoding with 10 distinct states:
+
+ S     : 10'b0000000001
+ S1    : 10'b0000000010
+ S11   : 10'b0000000100
+ S110  : 10'b0000001000
+ B0    : 10'b0000010000
+ B1    : 10'b0000100000
+ B2    : 10'b0001000000
+ B3    : 10'b0010000000
+ Count : 10'b0100000000
+ Wait  : 10'b1000000000
+
+---------------------------------------------------------------------------------------
+5. Functional Description
+
+5.1 Sequence Detection (States: S → S1 → S11 → S110)
+    a) S: Looks for the first '1'.
+    - If d=1, go to S1.
+    - Else, remain in S.
+
+    b) S1: Looks for the second '1'.
+    - If d=1, go to S11.
+    - Else, return to S.
+
+    c) S11: Looks for '0'.
+    - If d=0, go to S110.
+    - Else, remain in S11.
+
+    d) S110: Looks for the final '1'.
+    - If d=1, sequence 1101 detected → go to B0.
+    - Else, return to S.
+
+5.2 Bit Counter / Shift Stage (States: B0 → B1 → B2 → B3)
+    - Once the sequence 1101 is detected in S110, the FSM moves through B0, B1, B2, B3 sequentially.
+    - These four states can be used to shift in 4 bits, or simply to introduce a 4-cycle delay.
+    - shift_ena is 1 during B0–B3 to enable external shift registers.
+
+5.3 Counter Operation (State: Count)
+    - After B3, the FSM transitions to Count.
+    - Asserts counting high.
+    - Waits for the external signal done_counting=1 to indicate that the external counter is complete.
+    - When done_counting=1, transitions to Wait.
+
+5.4 Handshaking Protocol (State: Wait)
+    - Wait state asserts done high.
+    - Remains in Wait until ack=1.
+    - On ack=1, transitions back to the S state, ready for the next sequence detection.
+
+---------------------------------------------------------------------------------------
+6. Timing Requirements
+
+6.1 Clock Requirements
+    - Maximum clock frequency: 200 MHz
+    - Minimum clock period: 5 ns
+    - Duty cycle: 45–55%
+
+6.2 Setup and Hold Times
+    - Setup time at FSM inputs: 1 ns
+    - Hold time at FSM inputs: 0.5 ns
+
+6.3 Output Valid Delay
+    - FSM output changes valid within 2 ns of the active clock edge, under typical conditions.
+
+---------------------------------------------------------------------------------------
+7. Reset Behavior
+    - Synchronous reset (rst high).
+    - On rst=1, the FSM reverts to S (10’b0000000001) at the next rising clock edge.
+    - done, counting, and shift_ena are deasserted during reset.
+    - Sequence detection restarts, and any partial detection or counters are cleared.
+
+---------------------------------------------------------------------------------------
+8. Error Handling
+    a) Invalid State Detection
+    - If the state register is ever not one-hot, the FSM recovers by forcing the next state to S.
+
+    b) Handshake Timeout (optional, if required by the system)
+    - If Wait persists beyond a predefined cycle limit without ack, the FSM can time out to S or raise an error signal.
+
+---------------------------------------------------------------------------------------
+9. Detailed Operation: Cycle-by-Cycle Scenarios
+
+9.1 Scenario A: Detecting 1101
+    a) Cycle N, State = S
+    - Input: d=1
+    - Next State: S1
+    - Outputs: done=0, counting=0, shift_ena=0
+
+    b) Cycle N+1, State = S1
+    - Input: d=1
+    - Next State: S11
+    - Outputs: done=0, counting=0, shift_ena=0
+
+    c) Cycle N+2, State = S11
+    - Input: d=0
+    - Next State: S110
+    - Outputs: done=0, counting=0, shift_ena=0
+
+    d) Cycle N+3, State = S110
+    - Input: d=1 → Sequence complete, go to B0
+    - Outputs: done=0, counting=0, shift_ena=0
+
+    e) Cycle N+4, State = B0
+    - Unconditional → Next State: B1
+    - Outputs: done=0, counting=0, shift_ena=1
+
+9.2 Scenario B: Finishing Count and Waiting for ack
+    a) Cycle M, State = Count
+    - If done_counting=1, go to Wait; else remain in Count
+    - Outputs: counting=1, done=0, shift_ena=0
+
+    b) Cycle M+1, State = Wait
+    - done=1, counting=0, shift_ena=0
+    - Wait for ack=1
+
+    c) When ack=1
+    - Next State: S
+    - Outputs on next cycle in S: done=0, counting=0, shift_ena=0
+
+---------------------------------------------------------------------------------------
+10. Verification
+
+10.1 Testbench Requirements
+    - Full state coverage: Ensure every state transition path is tested, including the invalid/non-one-hot path.
+    - Reset checks: Verify that asserting rst returns the FSM to S.
+    - Handshake checks: Test Wait state with various ack timings.
+    - Sequence detection checks: Provide random and corner-case d inputs to verify partial sequences, repeated patterns, etc.
+
+10.2 Error State / Non-One-Hot Recovery
+    - The RTL logic ensures that if a non-one-hot state is detected or any default case is triggered, the FSM transitions to S.
+---------------------------------------------------------------------------------------
+11. Performance Metrics
+
+11.1 Latency
+    a) Sequence detection: 4 clock cycles (minimum, for 1101 to arrive).
+    b) Shift counting: 4 clock cycles (B0→B1→B2→B3).
+    c) Counter: As many clock cycles as needed until done_counting=1.
+    d) Wait: Indefinite until ack=1.
+
+Overall latency depends on external signals done_counting and ack.
+
+11.2 Throughput
+    - At best, one sequence detection per 8+counter cycles.
+    - The throughput is bounded by how frequently the external environment provides ack and how fast done_counting occurs.

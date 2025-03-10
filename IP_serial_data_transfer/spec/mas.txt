@@ -1,0 +1,165 @@
+# Micro-Architecture Specification (MAS)
+
+## Table of Contents  
+1. High-Level IP Overview  
+2. Internal Sub-Block Descriptions  
+3. Data Path Details  
+4. Control Path Details  
+5. Timing  
+6. Clocking & Reset  
+7. Configurations & Registers  
+8. Parameterization & Configurability  
+9. Error Handling  
+10. Example Scenarios & Waveforms  
+
+---
+
+## 1. High-Level IP Overview
+
+### 1.1 Key Features
+- Serial data reception with start, data, parity, and stop bit verification.
+- FSM-based byte reception and error detection.
+- Odd parity check for received data.
+- Supports least-significant-bit-first (LSB-first) serial protocol.
+- Outputs received byte along with a "done" signal.
+
+### 1.2 Top-Level Block Diagram
+- The design consists of a finite state machine (FSM), a shift register for serial-to-parallel conversion, and a parity checker.
+- The FSM controls byte reception and validity checking.
+- The shift register stores incoming bits and converts them into an 8-bit data byte.
+- The parity checker verifies odd parity.
+
+### 1.3 Module
+- Implements the top-level receiver with FSM, shift register, and parity check.
+- Implements the finite state machine for serial reception.
+- Implements parity checking logic.
+
+### 1.4 Design Constraints
+- The system operates on a single clock domain.
+- The start bit (0) must be detected before capturing data.
+- The stop bit (1) must be verified before data is considered valid.
+- Parity checking ensures error detection.
+
+---
+
+## 2. Internal Sub-Block Descriptions
+
+### 2.1 FSM (Finite State Machine)
+- **Function**: Controls the serial reception process, ensuring valid start, data, parity, and stop bits.
+- **Key Interfaces**:
+  - Inputs: `clk`, `reset`, `in`
+  - Outputs: `done`, `out_byte`
+- **Implementation**: Sequential FSM with states for idle, start detection, data reception, parity verification, and stop validation.
+- **Local FSM / States**:
+  1. IDLE
+  2. START
+  3. RECEIVE DATA (8 bits)
+  4. PARITY CHECK
+  5. STOP VALIDATION
+  6. DONE (output valid byte)
+
+### 2.2 Shift Register
+- **Function**: Serial-to-parallel conversion of received bits.
+- **Key Interfaces**:
+  - Inputs: `clk`, `reset`, `in`
+  - Outputs: `data_out`
+- **Implementation**: 8-bit shift register capturing serial input bits.
+
+### 2.3 Parity Checker
+- **Function**: Ensures received data maintains odd parity.
+- **Key Interfaces**:
+  - Inputs: `clk`, `reset`, `in`
+  - Outputs: `odd`
+- **Implementation**: Toggle flip-flop counting ones in the received data + parity bit.
+
+---
+
+## 3. Data Path Details
+
+### 3.1 Data Flow
+- Incoming bits enter via `in` and are shifted into the shift register.
+- FSM transitions track start, data, parity, and stop bits.
+- Once validated, `out_byte` is set, and `done` is asserted.
+
+### 3.2 Bit Widths & Encodings
+- 1-bit input `in`.
+- 8-bit shift register.
+- Parity bit follows 8-bit data.
+
+### 3.3 Buffering / Queues
+- No additional buffering required.
+
+---
+
+## 4. Control Path Details
+
+### 4.1 Status / Debug
+- Debug signals include FSM state outputs and error flags.
+
+### 4.2 Global Control FSM
+- Ensures byte-level reception and integrity verification.
+
+### 4.3 Error / Security Handling
+- Discards data if stop bit is missing or parity check fails.
+
+---
+
+## 5. Timing
+
+### 5.1 Latency
+- Nominal latency: 10 clock cycles (1 start + 8 data + 1 parity + 1 stop).
+
+### 5.2 Hazards & Ordering
+- No hazards due to sequential processing.
+
+---
+
+## 6. Clocking & Reset
+
+### 6.1 Clock Domains
+- Operates on a single clock domain.
+
+### 6.2 Reset Types
+- Synchronous active-high reset.
+
+### 6.3 Reset / Startup Sequence
+- System initializes in IDLE state, waiting for the start bit.
+
+---
+
+## 7. Configurations & Registers
+
+### 7.1 Configuration
+- No configuration registers required.
+
+### 7.2 Register Map
+- Not applicable.
+
+---
+
+## 8. Parameterization & Configurability
+
+- Possible parameters: `DATA_WIDTH` (default: 8), `PARITY_TYPE` (odd/even).
+
+---
+
+## 9. Error Handling
+
+### 9.1 Assertions / Monitors
+- FSM state transitions monitored to detect protocol violations.
+
+### 9.2 Error Reporting
+- Signals for parity and stop bit errors.
+
+### 9.3 Integration with System Debug
+- Debug signals can be tapped for testing.
+
+---
+
+## 10. Example Scenarios & Waveforms
+
+- **Normal Operation**: A valid byte with correct parity and stop bit.
+- **Error Handling**: Stop bit missing—byte discarded.
+- **Parity Error**: Parity check fails—byte discarded.
+
+**End of Document**
