@@ -1,2 +1,3 @@
 # Public
-Repository to showcase basic demo IPs
+
+Repository to showcase basic demo IPs created by MooresLabAI
