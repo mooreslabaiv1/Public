@@ -40,7 +40,7 @@ else
  ERR_STATUS = 1
 endif
 
-COMP_OPTS = -timescale=1ns/10ps -sverilog -l vcs.log $(UVM) $(RTL_DOT_FS) $(INCL) $(DEFINES)
+COMP_OPTS = -full64 -timescale=1ns/10ps -sverilog -l vcs.log $(UVM) $(RTL_DOT_FS) $(INCL) $(DEFINES)
 
 all default: check clean comp run_all convert_coverage_html
 
