@@ -105,7 +105,7 @@ clean:
 	rm -rf vc_hdrs.h .vcsmx_rebuild *.log
 	rm -rf work/* *.svshell vcs_version
 	rm -rf coverage_*
-	rm -f testbench.vcd ucli.key
+	rm -f testbench.vcd ucli.key .fsm*
 
 
 help:

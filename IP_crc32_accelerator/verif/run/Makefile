@@ -104,6 +104,9 @@ clean:
 	rm -rf simv* csrc
 	rm -rf vc_hdrs.h .vcsmx_rebuild *.log
 	rm -rf work/* *.svshell vcs_version
+	rm -rf coverage*
+	rm -rf *.vcd 
+	rm -rf ucli.key .fsm*
 
 help:
 	@echo "****************************************************************"

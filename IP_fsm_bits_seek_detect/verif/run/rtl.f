@@ -1,1 +1,1 @@
-../rtl/full_rtl.sv
+../../rtl/full_rtl.sv
