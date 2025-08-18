@@ -1,0 +1,44 @@
+﻿test_scenario_name,test_scenario_type,test_scenario_description,test_scenario_checkers,test_scenario_set_up_steps,test_scenario_coverage_goals,test_scenario_pass_fail,related_feature,citations
+Start Bit Detection Test,basic_test,"This test verifies the detection of the start bit, ensuring the FSM transitions from IDLE to START state upon detecting a start bit (0) in the serial input.","Upon detection of a start bit (0), the FSM should transition from the IDLE state to the START state, and data reception should commence.","1. Initialize the system and ensure the FSM is in the IDLE state.
+2. Provide a clock signal and keep the serial input line high.
+3. Introduce a low signal (0) to represent the start bit.
+4. Observe the FSM transition from IDLE to START state.","Functional:
+- Coverpoint: start_low_width (sub-1T, 1T, >1T).
+- Transition coverage around IDLE/START.
+- Cross: start_low_width × start_detected(yes/no).",PASS when a glitchy start bit does not result in data reception or `done` pulse.,Start Bit Detection Robustness,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 6), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 7)]"
+Data Bit Reception Test,basic_test,This test checks that the serial receiver correctly shifts in 8 data bits after detecting a start bit.,The shift register should correctly output the received 8 data bits in the sequence they were received.,"1. Begin with the serial receiver in the IDLE state.
+2. Send a start bit (0) followed by 8 data bits in the serial input.
+3. Ensure that the correct sequence of data bits is shifted and stored in the shift register.
+4. Verify the output of the 8-bit data at the completion of the 8-bit sequence.","Functional:
+- Coverpoint: out_byte {0x00, 0xFF, 0xAA, 0x55, random}.
+- Transition coverage: START → DATA[0–7] → PARITY → STOP.",PASS if all 8 bits received correctly and done=1 for 1 cycle.,"Data Shift Register, Bit Counter","[('SerialDP_IP_Micro_Architecture_Specification.pdf', 6), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 7), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 9)]"
+Odd Parity Check Test,basic_test,Verify that the parity checker correctly identifies valid odd parity in received data.,The parity checker should assert valid parity for data that adheres to odd parity rules.,"1. Initialize the system and shift in 8 data bits that satisfy odd parity.
+2. Introduce a single parity bit that maintains odd parity.
+3. Confirm the FSM accepts the byte as valid and proceeds to verify the stop bit.","Functional:
+- Coverpoint: parity_ok {1}.
+- Cross: parity_ok × data pattern.
+- FSM transitions with valid parity.",PASS if only valid odd-parity data leads to `done`.,Odd Parity Verification,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 6), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 7), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 11)]"
+Stop Bit Verification Test,basic_test,This test ensures that the stop bit (1) is correctly validated after receiving the data and parity bits.,"Upon receiving the stop bit (1), the FSM should transition to a state indicating a successful reception.","1. Set the serial input for a start bit, followed by 8 data bits, a parity bit, and finally a stop bit (1).
+2. Monitor FSM to ensure it transitions to COMPLETE state following the stop bit.
+3. Check that the 'done' signal is asserted to indicate successful validation.","Functional:
+- Coverpoint: stop_bit == 1 × parity_ok == 1.
+- FSM transitions STOP → IDLE with `done` pulse.",PASS when correct stop bit triggers `done` and transition to IDLE.,Stop Bit Validator and Done Generation,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 6), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 7)]"
+Parity Error Detection Test,error_test,This test verifies the system's ability to detect parity errors in the received data.,"If the received data does not satisfy odd parity, the error should be detected, and the byte should not be considered valid.","1. Input a start bit, 8 data bits, and a parity bit that results in even parity.
+2. Observe that the FSM signals a parity error and does not assert the 'done' signal.","Functional:
+- Coverpoint: parity_ok {0}.
+- Transition coverage: PARITY → WAIT_STOP / IDLE (no done).",PASS when parity error prevents data commit and done signal.,Parity Error Handling,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 11)]"
+Stop Bit Error Detection Test,basic_test,Confirm that the system handles stop bit errors by discarding data if the stop bit is not equal to 1.,"The byte should be discarded if the stop bit is incorrect, and the 'done' signal should not be asserted.","1. Input a data sequence with the start bit, 8 data bits, correct parity, and an incorrect stop bit (0).
+2. Verify the FSM recognizes the stop bit error and does not transition to a valid done state.","Functional:
+- Coverpoint: stop_bit == 0 × parity_ok == 1.
+- WAIT_STOP → IDLE transition.","PASS when stop bit error leads to no `done`, and recovery enforced.",Stop Bit Error Logic and Recovery,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 11)]"
+Full Byte Reception with Valid Signals,random_test,"This test case ensures that the system processes a full byte correctly from start to stop bits, including parity, asserting the done flag.",The system should complete reception with a valid output byte and assert the 'done' signal on successful reception.,"1. Send a complete sequence: start bit, 8 data bits, correct parity, and a correct stop bit.
+2. Check that the output byte matches the sent data bits.
+3. Ensure the 'done' signal is asserted for one clock cycle completing the operation.","Functional:
+- Coverpoint: out_byte full range coverage.
+- Transition path coverage for valid full frame.",PASS when complete byte is received correctly and `done` is clean.,Full Frame Handling & Valid Reception,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 6), ('SerialDP_IP_Micro_Architecture_Specification.pdf', 9)]"
+"mid_sim_reset_test,",stress_test,"Test with reset toggled in the middle of the simulation to observe if the IP resumes functionality correctly after reset release.,","IP should resume normal operation correctly after reset is toggled mid-simulation without functional discrepancies.,","1. Start simulation normally.
+2. Toggle reset signal mid-simulation.
+3. Release reset.
+4. Observe and verify IP resumes normal operations as expected.","Functional:
+- Coverpoint: reset at IDLE, DATA[0–7], STOP.
+- Post-reset valid frame accepted.",PASS when reset clears state and next frame is handled properly.,Reset Behavior Mid Transaction,"[('SerialDP_IP_Micro_Architecture_Specification.pdf', 9)]"

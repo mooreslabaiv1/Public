@@ -1,0 +1,1333 @@
+test_scenario_name,test_scenario_type,test_scenario_description,test_scenario_set_up_steps,test_scenario_checkers,test_scenario_coverage_goals,test_scenario_pass_fail,related_feature,citations
+Comprehensive APB Basic Write Transfer Test,Basic Tests,"Perform several simple APB write transfers to the addressable register space using the top-level APB protocol ports. This test verifies the correct operation of write transactions at typical and boundary addresses, including correct sequencing and stability of PSEL, PENABLE, PWRITE, PADDR, PWDATA, PSTRB, PPROT, PNSE, and observation of PREADY and PSLVERR. It also checks correct APB state machine transitions (IDLE -> SETUP -> ACCESS -> IDLE) and ensures all required signals are valid and stable during the write protocol phases.","1) Continuously drive PCLK throughout the test.
+2) After 5-10 cycles of PCLK, assert PRESETn low for 8 cycles, then de-assert (PRESETn high) to apply reset.
+3) For each write transfer (repeat for 3-5 addresses):
+    a) Randomly select PADDR (including minimum 0x0000, maximum value for ADDR_WIDTH, and a mid-range value) and a random PWDATA value (including min, max, and mid values).
+    b) Set PPROT and PNSE to cover all legal values (e.g., all 8 PPROT values, PNSE=0/1).
+    c) Assert PSEL high, drive PADDR, PWDATA, PWRITE high, PSTRB (all bits high for full write and other legal values), PWAKEUP high.
+    d) On the next rising edge of PCLK, assert PENABLE high (ACCESS phase), keep all signals stable.
+    e) Wait for PREADY to be asserted by the DUT.
+    f) Once PREADY is high, deassert PSEL and PENABLE (return to IDLE or start next transfer), and log the transaction tuple (PADDR, PWDATA, PPROT, PNSE, PSTRB).
+4) Repeat for a small set of addresses and data values to cover all required bins.","1) For each write transaction, confirm that when PSEL, PENABLE, and PWRITE are high and PREADY is observed high, the transaction is considered complete and logged.
+2) Confirm that PADDR, PWDATA, PPROT, PNSE, PSTRB, PWRITE remain stable from SETUP through ACCESS phase until PREADY is high.
+3) Monitor that PREADY is asserted only during ACCESS phase and that the write completes only when PREADY is high.
+4) Check that PSLVERR is not asserted during any write transaction (i.e., PSLVERR remains low when PREADY is high at the end of the write).
+5) Ensure that no protocol violations occur (e.g., signal instability, incorrect state transitions, PREADY deasserted too soon, PSEL/PENABLE timing incorrect).
+6) Optionally, after all writes, perform a read (using a separate scenario) to confirm data integrity.","Functional Coverage:
+- Coverpoint: Write Handshake (PSEL==1 && PENABLE==1 && PWRITE==1 && PREADY==1)
+- Coverpoint: PADDR (min, max, mid values)
+- Coverpoint: PWDATA (min, max, mid, and random values)
+- Coverpoint: PSTRB (all bits high, all bits low, single bit set)
+- Coverpoint: PPROT (all 8 legal values)
+- Coverpoint: PNSE (0 and 1)
+- Coverpoint: PSLVERR (remains low during valid write handshake)
+- Cross Coverage:
+  - PADDR x PWDATA (min, max, mid bins for both)
+  - PADDR x PSTRB
+  - PADDR x PPROT
+  - PADDR x PNSE
+  - PPROT x PNSE (all 16 combinations)
+  - PSTRB x PWDATA (e.g., PSTRB_ALL_ONE with PWDATA_MAX, PSTRB_ALL_ZERO with PWDATA_MIN)
+- Code Coverage:
+  - Statement, branch, and toggle coverage of DUT write path and state machine transitions (IDLE, SETUP, ACCESS), focusing on logic driven by PSEL, PENABLE, PWRITE, PADDR, PWDATA, PSTRB, PPROT, PNSE, PSLVERR, and PREADY.
+  - Cover all transitions: IDLE -> SETUP, SETUP -> ACCESS, ACCESS -> IDLE, ACCESS -> SETUP.",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 34), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+Basic APB Read Transfer Protocol and Signal Validity Test,Basic Tests,"Perform several simple APB read transfers from the addressable register space using the top-level APB protocol ports. This test verifies correct operation of the APB state machine for read transactions under nominal conditions, including correct state transitions, signal stability requirements, protocol compliance, and correct sequencing of PSEL, PENABLE, PWRITE, PADDR, and observation of PRDATA, PREADY, and PSLVERR. The test covers typical, minimum, maximum, and mid-range addresses, and ensures all required signals are valid during the read protocol phases. It also verifies that read data matches expected values when preloaded via write transfers.","1) Continuously drive PCLK throughout the test.
+2) Apply reset by asserting PRESETn low for 8 cycles, then de-assert (PRESETn high).
+3) Preload expected data by performing write transfers to a small set of addresses (using the basic write transfer scenario).
+4) For each read transfer (repeat for the same addresses written above, including minimum 0x0000, maximum value for ADDR_WIDTH, and a mid-range value):
+    a) Set PADDR to the selected address.
+    b) Set PPROT and PNSE to default/typical values and also cover all legal values as per APB specification.
+    c) Assert PSEL high, drive PWRITE low, PSTRB all bits low (as required for read), and PWAKEUP as required.
+    d) On the next rising edge of PCLK, assert PENABLE high (ACCESS phase), keep all signals stable.
+    e) Wait for PREADY to be asserted by the DUT.
+    f) When PREADY is high, capture and log PRDATA and PSLVERR.
+    g) Deassert PSEL and PENABLE after PREADY is high.
+5) Compare captured PRDATA to the expected value for each address.","1) After each read, compare PRDATA to the known written value for the address (scoreboard check).
+2) For each read transaction, check that when PSEL, PENABLE, and PREADY are all asserted and PWRITE is low, the read is considered complete and PRDATA is captured.
+3) Confirm that PADDR, PPROT, PNSE, PWRITE, and PSTRB remain stable from SETUP through ACCESS phase until PREADY is high.
+4) Check that PSLVERR is not asserted during any read transfer in this scenario.
+5) Ensure that no protocol violations occur (e.g., PREADY timing, PSEL/PENABLE sequencing, signal stability, correct state transitions).","Functional Coverage:
+- Coverpoint: Read Handshake (PSEL==1 && PENABLE==1 && PWRITE==0 && PREADY==1)
+- Coverpoint: PADDR (min, max, mid-range values)
+- Coverpoint: PRDATA (min, max, mid-range, and random values)
+- Coverpoint: PSTRB (all bits low for read)
+- Coverpoint: PPROT (all legal values: 0b000 to 0b111)
+- Coverpoint: PNSE (0 and 1)
+- Coverpoint: PSLVERR (should remain low during valid read handshake)
+- Cross Coverage:
+  - PADDR x PRDATA (min, max, mid bins for both)
+  - PADDR x PSTRB (if present)
+  - PADDR x PPROT
+  - PADDR x PNSE
+  - PPROT x PNSE (all valid combinations)
+- Code Coverage:
+  - Statement, branch, and toggle coverage of DUT read path and state machine transitions (IDLE, SETUP, ACCESS), focusing on logic driven by PSEL, PENABLE, PWRITE, PADDR, PRDATA, PSTRB, PPROT, PNSE, PSLVERR, and PREADY.
+  - Cover all transitions: IDLE -> SETUP, SETUP -> ACCESS, ACCESS -> IDLE, ACCESS -> SETUP.",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 34), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+basic write strobe functionality test,Basic Tests,"Verify that during a basic APB write transfer, PSTRB correctly indicates valid byte lanes for PWDATA, is only active during write transfers, and is mapped correctly to the data bus width.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then de-assert PRESETn to release reset.
+3) For each write transfer (repeat for 3-5 addresses):
+   a) Randomly select PADDR (including minimum and maximum values).
+   b) Randomly select PWDATA and PSTRB values (ensure PSTRB covers at least all-0, all-1, and single-bit cases).
+   c) Assert PSEL high, drive PADDR, PWDATA, PSTRB, PPROT, PNSE, PWAKEUP, PWRITE high, and PENABLE low for setup phase.
+   d) On next PCLK rising edge, assert PENABLE high (access phase), keep all other signals stable.
+   e) Wait for PREADY to be asserted by DUT.
+   f) Deassert PSEL and PENABLE, log the transaction.
+   g) Repeat for different PSTRB patterns and PWDATA values.","1) For each write transaction, check that PSTRB is only non-zero when PWRITE is high.
+2) For each write, verify that the PSTRB pattern matches the intended byte lanes of PWDATA (i.e., PSTRB[n] corresponds to PWDATA[(8n+7):(8n)]).
+3) Log all write transactions and check that the DUT acknowledges the transfer with PREADY.
+4) Ensure that for all read transactions (if any), PSTRB is always zero.","Functional Coverage:
+  - Coverpoint on PSTRB with bins:
+      * all_zeros: PSTRB == 0
+      * all_ones: PSTRB == {all bits 1}
+      * single_bit_set: One bin for each PSTRB bit individually set (e.g., PSTRB == 1, 2, 4, 8 for 4-bit PSTRB)
+      * random_patterns: At least 2 bins for random non-trivial patterns (not all-0, all-1, or single-bit)
+  - Coverpoint on PADDR with bins:
+      * min_addr: PADDR == minimum value (e.g., 0)
+      * max_addr: PADDR == maximum value (e.g., all bits 1)
+      * mid_addr: PADDR == middle value (e.g., half of max)
+  - Coverpoint on PWDATA with bins:
+      * min_data: PWDATA == minimum value (0)
+      * max_data: PWDATA == maximum value (all bits 1)
+      * mid_data: PWDATA == middle value (half of max)
+  - Cross coverage:
+      * Cross PSTRB (all_ones, all_zeros, single_bit_set) with PWDATA (min_data, max_data, mid_data)
+      * Cross PSTRB (all_ones, all_zeros, single_bit_set) with PADDR (min_addr, max_addr, mid_addr)
+  - Cover at least one transaction for each byte lane individually asserted in PSTRB (i.e., for each bit position, ensure a write with only that bit set).
+  - Cover at least one transaction where PSTRB is all-0 and PWRITE is high (should be checked for protocol correctness).
+  - Cover at least one transaction for each legal combination of PSTRB and PWRITE (PSTRB non-zero only when PWRITE is high).
+  - Cover at least one transaction for each legal combination of PSTRB and PENABLE (PSTRB stable across setup and access phase).
+  - Cover at least one transaction for each legal combination of PSTRB and PREADY (PSTRB stable while PREADY is low).
+  - Cover at least one transaction for each legal combination of PSTRB and PSLVERR (if PSLVERR is present).
+  - Cover at least one transaction for each legal combination of PSTRB and PWAKEUP (if PWAKEUP is present).
+
+Code Coverage:
+  - Statement, branch, and toggle coverage for logic handling PSTRB, PWDATA, PADDR, PWRITE, PENABLE, PREADY, PSLVERR, PWAKEUP, and PSEL.
+
+All coverage points and bins are defined only on the following top-level ports: PRESETn, PCLK, PWDATA, PENABLE, PRDATA, PADDR, PWRITE, PSTRB, PPROT, PNSE, PSLVERR, PWAKEUP, PREADY, PSEL.","Pass:
+  - All write transactions complete with PREADY asserted.
+  - For every write, PSTRB is non-zero only when PWRITE is high.
+  - For every write, PSTRB pattern matches the intended byte lanes of PWDATA.
+  - For all read transactions, PSTRB is zero.
+Fail:
+  - Any mismatch in PSTRB and PWDATA mapping.
+  - Any PSTRB non-zero during read.
+  - Any write not acknowledged by PREADY.
+  - Test passed vacuously (no writes).",Write Strobe Functionality Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 17), ('IHI0024E_amba_apb_architecture_spec.pdf', 22)]"
+basic protection attribute write transfer test,Basic Tests,"Perform simple APB write transfers with various valid PPROT and PNSE values to verify that the protection and security attributes are correctly indicated and stable during the required protocol phases. This scenario checks that PPROT and PNSE are valid and stable when PSEL is asserted, as required by the specification.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles to apply reset, then de-assert (PRESETn high).
+3) For each write transfer (repeat for 4 combinations):
+    a) Select a valid address for PADDR (including minimum and maximum values).
+    b) Select a valid data value for PWDATA.
+    c) Select a valid PPROT value (covering all 3 bits: 0b000, 0b001, 0b010, 0b111).
+    d) Select a valid PNSE value (0 and 1).
+    e) Assert PSEL high, drive PADDR, PWDATA, PPROT, PNSE, PWRITE high, and PSTRB appropriately.
+    f) After one cycle, assert PENABLE high (keep all other signals stable).
+    g) Wait for PREADY to be asserted by the DUT.
+    h) Deassert PSEL and PENABLE, log the transaction.
+4) Repeat for all combinations of PPROT and PNSE (minimum and maximum values included).","1) For each write transaction, check that the values of PPROT and PNSE driven by the testbench are observed to be stable and valid throughout the transaction (from PSEL assertion until PREADY is asserted).
+2) After each write, log the tuple (PADDR, PWDATA, PPROT, PNSE) for coverage and reference.
+3) Confirm that PREADY is asserted within a reasonable number of cycles and that the transaction completes as expected.","Functional Coverage:
+- Coverpoint on PPROT with bins:
+    - pprot_000: PPROT == 3'b000 (Normal, Secure, Data)
+    - pprot_001: PPROT == 3'b001 (Privileged, Secure, Data)
+    - pprot_010: PPROT == 3'b010 (Normal, Non-secure, Data)
+    - pprot_111: PPROT == 3'b111 (Privileged, Non-secure, Instruction)
+- Coverpoint on PNSE with bins:
+    - pnse_0: PNSE == 1'b0
+    - pnse_1: PNSE == 1'b1
+- Cross coverage of PPROT and PNSE:
+    - 8 bins for all combinations of the above PPROT and PNSE values (e.g., pprot_000_pnse_0, pprot_000_pnse_1, ..., pprot_111_pnse_1)
+- Coverpoint on PADDR with bins:
+    - paddr_min: PADDR == minimum legal value
+    - paddr_max: PADDR == maximum legal value
+    - paddr_mid: PADDR == a mid-range value (optional for completeness)
+- Coverpoint on PWDATA with bins:
+    - pwdata_min: PWDATA == minimum legal value
+    - pwdata_max: PWDATA == maximum legal value
+    - pwdata_mid: PWDATA == a mid-range value (optional for completeness)
+- Coverpoint on PSTRB with bins:
+    - pstrb_all: All bits of PSTRB asserted (all byte lanes active)
+    - pstrb_none: All bits of PSTRB deasserted (no byte lanes active)
+    - pstrb_single: Only one bit of PSTRB asserted (single byte write)
+- Coverpoint on PWRITE with bin:
+    - pwrite_1: PWRITE == 1 (write transfer)
+- Coverpoint on PREADY with bins:
+    - pready_early: PREADY asserted in first possible cycle
+    - pready_late: PREADY asserted after one or more wait cycles
+- Coverpoint on PSLVERR with bins:
+    - pslverr_0: PSLVERR == 0 (no error)
+    - pslverr_1: PSLVERR == 1 (error response)
+- Coverpoint on PWAKEUP with bins:
+    - pwakeup_0: PWAKEUP == 0
+    - pwakeup_1: PWAKEUP == 1
+
+Code Coverage:
+- Statement, branch, and toggle coverage for the write path and protection attribute handling logic, focusing on logic that uses PPROT, PNSE, PADDR, PWDATA, PSTRB, PWRITE, PREADY, PSLVERR, and PWAKEUP.","Pass:
+  - All write transactions complete with PREADY asserted.
+  - PPROT and PNSE are stable and valid during each transaction.
+  - No protocol violations or unexpected DUT behavior.
+Fail:
+  - Any instability or invalid value on PPROT or PNSE during a transaction.
+  - Any protocol violation (e.g., transaction not completing, PREADY not asserted).
+  - Test passed vacuously (no writes performed).",Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28)]"
+basic protection attribute read transfer test,Basic Tests,"Perform simple APB read transfers with various valid PPROT and PNSE values to verify that the protection and security attributes are correctly indicated and stable during the required protocol phases. This scenario checks that PPROT and PNSE are valid and stable when PSEL is asserted, as required by the specification.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles to apply reset, then de-assert (PRESETn high).
+3) For each read transfer (repeat for 4 combinations):
+    a) Select a valid address for PADDR (including minimum and maximum values).
+    b) Select a valid PPROT value (covering all 3 bits: 0b000, 0b001, 0b010, 0b111).
+    c) Select a valid PNSE value (0 and 1).
+    d) Assert PSEL high, drive PADDR, PPROT, PNSE, PWRITE low, and PSTRB appropriately.
+    e) After one cycle, assert PENABLE high (keep all other signals stable).
+    f) Wait for PREADY to be asserted by the DUT.
+    g) Capture PRDATA and log the transaction.
+    h) Deassert PSEL and PENABLE.
+4) Repeat for all combinations of PPROT and PNSE (minimum and maximum values included).","1) For each read transaction, check that the values of PPROT and PNSE driven by the testbench are observed to be stable and valid throughout the transaction (from PSEL assertion until PREADY is asserted).
+2) After each read, log the tuple (PADDR, PRDATA, PPROT, PNSE) for coverage and reference.
+3) Confirm that PREADY is asserted within a reasonable number of cycles and that the transaction completes as expected.","Functional Coverage:
+- Coverpoint on PPROT with bins:
+    - pprot_000: PPROT == 3'b000 (Normal, Secure, Data)
+    - pprot_001: PPROT == 3'b001 (Privileged, Secure, Data)
+    - pprot_010: PPROT == 3'b010 (Normal, Non-secure, Data)
+    - pprot_111: PPROT == 3'b111 (Privileged, Non-secure, Instruction)
+- Coverpoint on PNSE with bins:
+    - pnse_0: PNSE == 1'b0
+    - pnse_1: PNSE == 1'b1
+- Cross coverage of PPROT and PNSE:
+    - 8 bins for all combinations of the above PPROT and PNSE values (e.g., pprot_000_pnse_0, pprot_000_pnse_1, ..., pprot_111_pnse_1)
+- Coverpoint on PADDR with bins:
+    - paddr_min: PADDR == minimum legal value
+    - paddr_max: PADDR == maximum legal value
+    - paddr_mid: PADDR == a mid-range value (optional for completeness)
+- Coverpoint on PWRITE with bin:
+    - pwrite_0: PWRITE == 0 (read transfer)
+- Coverpoint on PREADY with bins:
+    - pready_early: PREADY asserted in first possible cycle
+    - pready_late: PREADY asserted after one or more wait cycles
+- Coverpoint on PSLVERR with bins:
+    - pslverr_0: PSLVERR == 0 (no error)
+    - pslverr_1: PSLVERR == 1 (error response)
+- Coverpoint on PWAKEUP with bins:
+    - pwakeup_0: PWAKEUP == 0
+    - pwakeup_1: PWAKEUP == 1
+
+Code Coverage:
+- Statement, branch, and toggle coverage for the read path and protection attribute handling logic, focusing on logic that uses PPROT, PNSE, PADDR, PWRITE, PREADY, PSLVERR, and PWAKEUP.","Pass:
+  - All read transactions complete with PREADY asserted and PRDATA captured.
+  - PPROT and PNSE are stable and valid during each transaction.
+  - No protocol violations or unexpected DUT behavior.
+Fail:
+  - Any instability or invalid value on PPROT or PNSE during a transaction.
+  - Any protocol violation (e.g., transaction not completing, PREADY not asserted).
+  - Test passed vacuously (no reads performed).",Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28)]"
+basic wait state write transfer test,Basic Tests,Perform a basic APB write transfer where the Completer introduces wait states by holding PREADY low for a few cycles during the data phase. This scenario verifies that all relevant input signals remain stable during the wait state and that the transfer completes correctly when PREADY is asserted.,"1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then de-assert (PRESETn high) to apply reset.
+3) For a single write transfer:
+   a) Randomly select a PADDR value (including minimum and maximum address).
+   b) Drive PPROT, PNSE, PSTRB, PWAKEUP to legal values (if present), and set PWRITE high.
+   c) Assert PSEL high, drive PADDR, PWDATA, PPROT, PNSE, PSTRB, PWAKEUP, PWRITE as required.
+   d) On the next rising edge of PCLK, assert PENABLE high (enter ACCESS phase).
+   e) Hold all input signals stable while waiting for PREADY to be asserted by the DUT (PREADY is observed, not driven).
+   f) Once PREADY is observed high, deassert PSEL and PENABLE, and log the transaction.
+   g) Repeat for a small number (2-3) of different addresses and data values.","1) For each write transfer, check that PREADY remains low for at least one cycle during the ACCESS phase, then goes high to complete the transfer.
+2) Confirm that PADDR, PWDATA, PPROT, PNSE, PSTRB, PWRITE remain stable throughout the ACCESS phase while PREADY is low.
+3) After PREADY is asserted, confirm that the transaction is logged as complete.
+4) Optionally, if a subsequent read is performed to the same address, compare PRDATA to the written value (if the DUT supports read-back).","Functional Coverage:
+  - Coverpoint: wait_state_cycles (PREADY held low during ACCESS phase)
+    - Bin: wait_state_1cycle (PREADY low for exactly 1 cycle)
+    - Bin: wait_state_2cycle (PREADY low for exactly 2 cycles)
+    - Bin: wait_state_3plus_cycle (PREADY low for 3 or more cycles)
+  - Coverpoint: PADDR value
+    - Bin: addr_min (PADDR at minimum value)
+    - Bin: addr_max (PADDR at maximum value)
+  - Coverpoint: PWRITE
+    - Bin: pwrite_high (PWRITE asserted during write transfer)
+  - Cross coverage:
+    - Cross: (wait_state_cycles) X (PADDR min/max)
+  - Coverpoint: PSTRB
+    - Bin: pstrb_all_active (all bits of PSTRB asserted)
+    - Bin: pstrb_none_active (all bits of PSTRB deasserted)
+    - Bin: pstrb_partial_active (some but not all bits of PSTRB asserted)
+  - Coverpoint: PPROT
+    - Bin: pprot_000 (PPROT = 3'b000)
+    - Bin: pprot_111 (PPROT = 3'b111)
+  - Coverpoint: PNSE
+    - Bin: pnse_0 (PNSE = 0)
+    - Bin: pnse_1 (PNSE = 1)
+  - Coverpoint: PSLVERR
+    - Bin: pslverr_0 (PSLVERR = 0 during transfer completion)
+    - Bin: pslverr_1 (PSLVERR = 1 during transfer completion)
+  - Coverpoint: PWAKEUP
+    - Bin: pwakeup_0 (PWAKEUP = 0 during transfer)
+    - Bin: pwakeup_1 (PWAKEUP = 1 during transfer)
+Code Coverage:
+  - Statement, branch, and toggle coverage of DUT write wait state handling path.","Pass:
+  - All write transfers complete after PREADY is asserted.
+  - All relevant input signals remain stable during wait states.
+  - No protocol violations observed.
+Fail:
+  - Any input signal changes during wait state (while PREADY is low).
+  - PREADY never asserted (transfer does not complete).
+  - Test passes vacuously (no writes performed).",Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24)]"
+basic wait state read transfer test,Basic Tests,"Perform a basic APB read transfer where the Completer introduces wait states by holding PREADY low for a few cycles during the data phase. This scenario verifies that all relevant input signals remain stable during the wait state and that the transfer completes correctly when PREADY is asserted, with PRDATA captured at the correct time.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then de-assert (PRESETn high) to apply reset.
+3) For a single read transfer:
+   a) Randomly select a PADDR value (including minimum and maximum address).
+   b) Drive PPROT, PNSE, PSTRB, PWAKEUP to legal values (if present), and set PWRITE low.
+   c) Assert PSEL high, drive PADDR, PPROT, PNSE, PSTRB (all zeros for read), PWAKEUP, PWRITE low as required.
+   d) On the next rising edge of PCLK, assert PENABLE high (enter ACCESS phase).
+   e) Hold all input signals stable while waiting for PREADY to be asserted by the DUT (PREADY is observed, not driven).
+   f) Once PREADY is observed high, capture PRDATA, deassert PSEL and PENABLE, and log the transaction.
+   g) Repeat for a small number (2-3) of different addresses.","1) For each read transfer, check that PREADY remains low for at least one cycle during the ACCESS phase, then goes high to complete the transfer.
+2) Confirm that PADDR, PPROT, PNSE, PSTRB, PWRITE remain stable throughout the ACCESS phase while PREADY is low.
+3) When PREADY is asserted, capture PRDATA and log the value.
+4) Optionally, if a previous write was performed to the same address, compare PRDATA to the expected value (if the DUT supports read-back).","Functional Coverage:
+  - Coverpoint: wait_state_cycles (PREADY held low during ACCESS phase)
+    - Bin: wait_state_1cycle (PREADY low for exactly 1 cycle)
+    - Bin: wait_state_2cycle (PREADY low for exactly 2 cycles)
+    - Bin: wait_state_3plus_cycle (PREADY low for 3 or more cycles)
+  - Coverpoint: PADDR value
+    - Bin: addr_min (PADDR at minimum value)
+    - Bin: addr_max (PADDR at maximum value)
+  - Coverpoint: PWRITE
+    - Bin: pwrite_low (PWRITE deasserted during read transfer)
+  - Cross coverage:
+    - Cross: (wait_state_cycles) X (PADDR min/max)
+  - Coverpoint: PSTRB
+    - Bin: pstrb_all_zero (all bits of PSTRB deasserted during read transfer)
+  - Coverpoint: PPROT
+    - Bin: pprot_000 (PPROT = 3'b000)
+    - Bin: pprot_111 (PPROT = 3'b111)
+  - Coverpoint: PNSE
+    - Bin: pnse_0 (PNSE = 0)
+    - Bin: pnse_1 (PNSE = 1)
+  - Coverpoint: PSLVERR
+    - Bin: pslverr_0 (PSLVERR = 0 during transfer completion)
+    - Bin: pslverr_1 (PSLVERR = 1 during transfer completion)
+  - Coverpoint: PWAKEUP
+    - Bin: pwakeup_0 (PWAKEUP = 0 during transfer)
+    - Bin: pwakeup_1 (PWAKEUP = 1 during transfer)
+Code Coverage:
+  - Statement, branch, and toggle coverage of DUT read wait state handling path.","Pass:
+  - All read transfers complete after PREADY is asserted.
+  - All relevant input signals remain stable during wait states.
+  - PRDATA is captured only when PREADY is asserted.
+  - No protocol violations observed.
+Fail:
+  - Any input signal changes during wait state (while PREADY is low).
+  - PREADY never asserted (transfer does not complete).
+  - Test passes vacuously (no reads performed).",Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24)]"
+basic error response handling test (write),Basic Tests,"Verify that the DUT asserts PSLVERR only during the valid completion cycle of a write transfer (when PSEL, PENABLE, and PREADY are all high), and PSLVERR is low otherwise. This scenario checks nominal error response signaling for a write transaction.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then deassert PRESETn to apply reset.
+3) For a single write transfer:
+   a) Randomly select a PADDR value (including minimum and maximum address).
+   b) Drive PPROT, PNSE, PSTRB, PWAKEUP, PWDATA, and PWRITE with valid values for a write.
+   c) Assert PSEL high and drive all required inputs as per protocol.
+   d) On the next PCLK rising edge, assert PENABLE high (with PSEL held high).
+   e) Wait for PREADY to be asserted by the DUT.
+   f) Observe PSLVERR during the cycle when PSEL, PENABLE, and PREADY are all high.
+   g) Deassert PSEL and PENABLE after transfer completion.
+4) Repeat for 3-5 different addresses and data values.","1) For each write transfer, check that PSLVERR is only asserted (high) during the cycle when PSEL, PENABLE, and PREADY are all high.
+2) For all other cycles, verify PSLVERR remains low.
+3) Log the value of PSLVERR for each transfer and ensure it matches the expected behavior (error only signaled at valid completion cycle).
+4) No scoreboard or data comparison is required, as this scenario focuses on error response signaling only.","Functional Coverage:
+- Coverpoint PSLVERR_assertion_write: PSLVERR value during the valid write completion cycle (when PSEL, PENABLE, and PREADY are all high and PWRITE is high).
+  - Bin PSLVERR_asserted: PSLVERR is asserted (1) during the valid write completion cycle.
+  - Bin PSLVERR_not_asserted: PSLVERR is not asserted (0) during the valid write completion cycle.
+- Coverpoint PSLVERR_idle_write: PSLVERR value during all other cycles (when any of PSEL, PENABLE, or PREADY is low, or PWRITE is high but not in valid completion cycle).
+  - Bin PSLVERR_idle_low: PSLVERR is not asserted (0) during all other cycles.
+- Coverpoint PADDR_write:
+  - Bin PADDR_min: Write transfer at minimum PADDR value.
+  - Bin PADDR_max: Write transfer at maximum PADDR value.
+  - Bin PADDR_mid: Write transfer at a value between min and max.
+- Coverpoint PWDATA_write:
+  - Bin PWDATA_min: Write transfer with minimum PWDATA value.
+  - Bin PWDATA_max: Write transfer with maximum PWDATA value.
+  - Bin PWDATA_rand: Write transfer with a random PWDATA value (not min or max).
+- Cross coverage:
+  - Cross (PADDR_write, PSLVERR_assertion_write): For min and max PADDR, PSLVERR asserted and not asserted during valid write completion cycle.
+
+Code Coverage:
+- Statement, branch, and toggle coverage of PSLVERR generation logic in the DUT for the write path (using only top-level ports: PRESETn, PCLK, PWDATA, PENABLE, PRDATA, PADDR, PWRITE, PSTRB, PPROT, PNSE, PSLVERR, PWAKEUP, PREADY, PSEL).","Pass:
+  - PSLVERR is asserted only during the valid completion cycle of a write transfer (PSEL, PENABLE, PREADY high).
+  - PSLVERR is low in all other cycles.
+  - No protocol violations observed.
+Fail:
+  - PSLVERR asserted outside valid completion cycle.
+  - PSLVERR not asserted when expected.
+  - Any protocol violation.
+  - Test passed vacuously (no write transfers performed).",Error Response Handling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 25), ('IHI0024E_amba_apb_architecture_spec.pdf', 26)]"
+basic error response handling test (read),Basic Tests,"Verify that the DUT asserts PSLVERR only during the valid completion cycle of a read transfer (when PSEL, PENABLE, and PREADY are all high), and PSLVERR is low otherwise. This scenario checks nominal error response signaling for a read transaction.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then deassert PRESETn to apply reset.
+3) For a single read transfer:
+   a) Randomly select a PADDR value (including minimum and maximum address).
+   b) Drive PPROT, PNSE, PSTRB, PWAKEUP, and PWRITE low (for read).
+   c) Assert PSEL high and drive all required inputs as per protocol.
+   d) On the next PCLK rising edge, assert PENABLE high (with PSEL held high).
+   e) Wait for PREADY to be asserted by the DUT.
+   f) Observe PSLVERR during the cycle when PSEL, PENABLE, and PREADY are all high.
+   g) Deassert PSEL and PENABLE after transfer completion.
+4) Repeat for 3-5 different addresses.","1) For each read transfer, check that PSLVERR is only asserted (high) during the cycle when PSEL, PENABLE, and PREADY are all high.
+2) For all other cycles, verify PSLVERR remains low.
+3) Log the value of PSLVERR for each transfer and ensure it matches the expected behavior (error only signaled at valid completion cycle).
+4) No scoreboard or data comparison is required, as this scenario focuses on error response signaling only.","Functional Coverage:
+- Coverpoint PSLVERR_assertion_read: PSLVERR value during the valid read completion cycle (when PSEL, PENABLE, and PREADY are all high and PWRITE is low).
+  - Bin PSLVERR_asserted: PSLVERR is asserted (1) during the valid read completion cycle.
+  - Bin PSLVERR_not_asserted: PSLVERR is not asserted (0) during the valid read completion cycle.
+- Coverpoint PSLVERR_idle_read: PSLVERR value during all other cycles (when any of PSEL, PENABLE, or PREADY is low, or PWRITE is low but not in valid completion cycle).
+  - Bin PSLVERR_idle_low: PSLVERR is not asserted (0) during all other cycles.
+- Coverpoint PADDR_read:
+  - Bin PADDR_min: Read transfer at minimum PADDR value.
+  - Bin PADDR_max: Read transfer at maximum PADDR value.
+  - Bin PADDR_mid: Read transfer at a value between min and max.
+- Cross coverage:
+  - Cross (PADDR_read, PSLVERR_assertion_read): For min and max PADDR, PSLVERR asserted and not asserted during valid read completion cycle.
+
+Code Coverage:
+- Statement, branch, and toggle coverage of PSLVERR generation logic in the DUT for the read path (using only top-level ports: PRESETn, PCLK, PWDATA, PENABLE, PRDATA, PADDR, PWRITE, PSTRB, PPROT, PNSE, PSLVERR, PWAKEUP, PREADY, PSEL).","Pass:
+  - PSLVERR is asserted only during the valid completion cycle of a read transfer (PSEL, PENABLE, PREADY high).
+  - PSLVERR is low in all other cycles.
+  - No protocol violations observed.
+Fail:
+  - PSLVERR asserted outside valid completion cycle.
+  - PSLVERR not asserted when expected.
+  - Any protocol violation.
+  - Test passed vacuously (no read transfers performed).",Error Response Handling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 25), ('IHI0024E_amba_apb_architecture_spec.pdf', 26)]"
+basic wake-up signaling test,Basic Tests,"Verify that the PWAKEUP signal is asserted synchronously with APB interface activity (read or write transfer) and deasserted when there is no activity, under nominal conditions. This scenario validates that PWAKEUP correctly indicates APB activity as per protocol requirements.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then deassert PRESETn to apply reset.
+3) For each transfer (repeat for 3-5 transactions):
+   a) Randomly select PADDR (including minimum and maximum values), PPROT, PNSE, and PWDATA values.
+   b) For a write transfer:
+      i) Assert PSEL and PWRITE high, PENABLE low.
+      ii) Drive PADDR, PPROT, PNSE, PWDATA, PSTRB, and PWAKEUP high.
+      iii) On next PCLK, assert PENABLE high (PSEL, PWRITE remain high, PWAKEUP remains high).
+      iv) Wait for PREADY to be asserted.
+      v) Deassert PSEL, PENABLE, PWRITE, and PWAKEUP after transfer completes.
+   c) For a read transfer:
+      i) Assert PSEL high, PWRITE low, PENABLE low.
+      ii) Drive PADDR, PPROT, PNSE, and PWAKEUP high.
+      iii) On next PCLK, assert PENABLE high (PSEL remains high, PWAKEUP remains high).
+      iv) Wait for PREADY to be asserted.
+      v) Deassert PSEL, PENABLE, and PWAKEUP after transfer completes.
+   d) Between transfers, keep PWAKEUP low for at least 5 cycles to observe inactivity behavior.","1) For each APB transfer (read or write), check that PWAKEUP is asserted (high) during the entire active phase of the transfer (from PSEL assertion through PREADY assertion).
+2) Check that PWAKEUP is deasserted (low) during periods of inactivity (no PSEL asserted).
+3) Log the timing of PWAKEUP transitions and correlate with APB activity for each transaction.
+4) For each transfer, confirm that PWAKEUP is synchronous to PCLK and does not glitch during the transfer.","Functional Coverage:
+- Coverpoint: PWAKEUP asserted during a write transfer (PWRITE=1, PWAKEUP=1, PSEL=1, PENABLE=1, PREADY=1)
+    - Bin: PWAKEUP_write_min_addr (PADDR at minimum value)
+    - Bin: PWAKEUP_write_max_addr (PADDR at maximum value)
+    - Bin: PWAKEUP_write_mid_addr (PADDR at a value neither min nor max)
+- Coverpoint: PWAKEUP asserted during a read transfer (PWRITE=0, PWAKEUP=1, PSEL=1, PENABLE=1, PREADY=1)
+    - Bin: PWAKEUP_read_min_addr (PADDR at minimum value)
+    - Bin: PWAKEUP_read_max_addr (PADDR at maximum value)
+    - Bin: PWAKEUP_read_mid_addr (PADDR at a value neither min nor max)
+- Coverpoint: PWAKEUP deasserted during inactivity (PWAKEUP=0, PSEL=0)
+    - Bin: PWAKEUP_inactive
+- Cross Coverage:
+    - Cross: (PWAKEUP, PWRITE) to ensure both read and write activities are covered with PWAKEUP asserted
+    - Cross: (PWAKEUP, PADDR) to ensure PWAKEUP assertion is covered at min, max, and mid PADDR values
+- Coverpoint: PWAKEUP transitions (rising and falling edges) are synchronous to PCLK (no glitches during transfer)
+    - Bin: PWAKEUP_rise_on_PCLK
+    - Bin: PWAKEUP_fall_on_PCLK
+
+Code Coverage:
+- Statement, branch, and toggle coverage of PWAKEUP generation logic in the DUT, focusing on conditions involving PSEL, PENABLE, PWRITE, PREADY, and PADDR.","Pass:
+  - For every APB transfer, PWAKEUP is asserted synchronously with activity and deasserted during inactivity.
+  - No glitches or protocol violations observed on PWAKEUP.
+  - All coverage bins are hit at least once.
+Fail:
+  - PWAKEUP not asserted during any APB activity.
+  - PWAKEUP asserted during inactivity.
+  - Glitches or asynchronous transitions on PWAKEUP.
+  - Test passes vacuously (no APB activity).",Wake-up Signaling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 29)]"
+Write Strobe Stress Test with Back-to-Back Transfers and Backpressure,Stress Tests,"Stress test the PSTRB (write strobe) functionality by issuing back-to-back and burst write transfers with randomized PSTRB and PWDATA values, covering all legal byte lane combinations, and verifying correct strobe-to-data mapping. The test introduces heavy backpressure by having the DUT intermittently deassert PREADY to create wait states, ensuring protocol compliance and correct signal stability during extended transfers. Occasional read transfers are interleaved to verify PSTRB inactivity during reads. All relevant signals (PSTRB, PWDATA, PADDR, PWRITE, PSEL, PENABLE, PPROT, PNSE, PWAKEUP, PREADY, PRDATA, PSLVERR, PRESETn, PCLK) are exercised.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then deassert PRESETn to release reset.
+3) For a large number of bursts (e.g., 128), each with a random length (e.g., 16-64 transfers):
+   a) For each transfer in the burst:
+      - Randomly select legal PADDR, PWDATA, and PSTRB values (all combinations allowed).
+      - Set PWRITE high, PSEL high, PENABLE low, drive PADDR, PWDATA, PSTRB, PPROT, PNSE, PWAKEUP as random legal values.
+      - On next cycle, set PENABLE high (data phase), keep all other signals stable.
+      - Wait for PREADY from DUT; if PREADY is low, hold all signals stable and wait (simulate DUT backpressure).
+      - When PREADY is high, deassert PSEL and PENABLE, proceed to next transfer immediately (no idle cycles).
+   b) Randomly insert read transfers (PWRITE low, PSTRB all zero) between or within bursts to verify PSTRB inactivity during reads.
+4) Repeat for the entire test duration, ensuring some bursts experience long PREADY low intervals (wait states) and that back-to-back write transfers are exercised.","1) For each write transfer, log (PADDR, PWDATA, PSTRB) and verify that the strobe-to-data mapping is correct: PSTRB[n] corresponds to PWDATA[(8n+7):(8n)].
+2) For each transfer held during PREADY low, ensure all signals remain stable until PREADY is high.
+3) For each read transfer, check that PSTRB is always all zero.
+4) After the test, for all write transactions, verify that the DUT accepted only the byte lanes indicated by PSTRB (if observable via PRDATA in subsequent reads, compare only the written lanes).
+5) Confirm that no write transfer occurs with PSTRB active during a read (PWRITE low).
+6) Verify that all write transactions were accepted only when PREADY was high and that no data was lost or corrupted during wait states.","Functional Coverage:
+  1) Cover all legal values of PSTRB (bins: all-zeros, all-ones, single-bit, alternating bits, min=0x0, max=all-ones).
+  2) Cover cross of PSTRB and PWDATA (e.g., PSTRB=0xF with PWDATA=0xFFFFFFFF, PSTRB=0x1 with PWDATA=0x000000FF, etc.).
+  3) Cover all possible PADDR values (min, max, random).
+  4) Cover cross of PSTRB and PWRITE (PSTRB active with PWRITE high, PSTRB zero with PWRITE low).
+  5) Cover back-to-back write transfers with and without wait states (PREADY held low for 1, 2, ..., N cycles; bins for short and long wait states).
+  6) Cover interleaved write and read transfers.
+  7) Cover transitions from PREADY low to high during write accesses.
+  8) Explicit bins for minimum (PSTRB=0x0) and maximum (PSTRB=all-ones) values.",No Pass/Fail condition.,Write Strobe Functionality Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 17), ('IHI0024E_amba_apb_architecture_spec.pdf', 22)]"
+PPROT/PNSE Stress and Burst with Attribute Switch and Backpressure,Stress Tests,"This scenario stresses the DUT with a combination of back-to-back APB transactions that fully randomize PPROT[2:0] and PNSE for each transaction, as well as long bursts of transactions with fixed attribute sets. Attribute switches are performed immediately after bursts, and backpressure is introduced by holding PREADY low for random cycles. The scenario verifies correct handling, stability, and propagation of protection and security attributes under maximum legal traffic load, burst conditions, attribute switching, and recovery from backpressure.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 10 cycles, then de-assert (PRESETn high).
+3) For N cycles (N large enough to saturate coverage):
+   a) Alternate between two modes:
+      i) Randomized Mode: For each cycle, randomly select legal values for PADDR, PPROT[2:0], PNSE, PWRITE, PWDATA, PSTRB, PWAKEUP, and PSEL (ensuring protocol compliance). Issue back-to-back APB transactions with no idle cycles, waiting for PREADY high before issuing the next transaction. For each transaction, randomly hold PREADY low for 1-8 cycles to simulate backpressure.
+      ii) Burst Mode: For each of several attribute sets (e.g., PPROT/PNSE = 000/0, 101/1, 011/0, 111/1), perform a burst of M consecutive APB transactions (M large, e.g., 32-128), all with the same PPROT and PNSE values. For each transaction, randomly select PADDR, PWRITE, PWDATA, PSTRB, PWAKEUP, and PSEL. Randomly hold PREADY low for 1-8 cycles. After each burst, immediately switch to a new attribute set and repeat the burst.
+   b) For write transactions, log (PADDR, PPROT, PNSE, PWDATA, PSTRB). For read transactions, log (PADDR, PPROT, PNSE, PRDATA).
+4) Repeat until all legal combinations of PPROT and PNSE are exercised multiple times, including minimum and maximum values, and at least one attribute set is repeated after a different set.","1) For each read transaction, compare PRDATA with expected value if a previous write to the same (PADDR, PPROT, PNSE) combination was performed (write-read-compare).
+2) For each transaction, check that the observed PRDATA, PREADY, and PSLVERR are consistent with the issued PPROT and PNSE values (using a golden reference model for attribute mapping).
+3) For each burst, verify that all transactions within the burst use the same PPROT and PNSE values, and that attribute switches are correctly reflected in subsequent transactions.
+4) For all transactions, check that data is correctly transferred and no data is lost or duplicated during backpressure events.
+5) After test completion, verify that all legal PPROT/PNSE combinations and attribute sets have been observed in both read and write transactions, and that backpressure did not cause protocol violations.","Functional Coverage:
+  - Cover all 8 legal values of PPROT[2:0] and both legal values of PNSE.
+  - Cover all 16 cross combinations of (PPROT[2:0], PNSE).
+  - Cover minimum (PPROT=000, PNSE=0) and maximum (PPROT=111, PNSE=1) values explicitly.
+  - Cover cross of (PWRITE, PPROT, PNSE) for both read and write accesses.
+  - Cover back-to-back transaction sequences where PPROT or PNSE changes between consecutive transactions, and where they remain constant for multiple consecutive transactions (bursts).
+  - Cover all selected attribute sets used in bursts and attribute switches immediately after bursts.
+  - Cover at least one burst where PREADY is held low for maximum allowed cycles (max_backpressure) and at least one burst with no backpressure.
+  - Cover all legal values of PADDR and PSTRB for each attribute combination and within bursts.
+  - Cover all legal values of PWAKEUP during transactions and attribute switches.",No Pass/Fail condition.,Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28)]"
+APB Wait State and Backpressure Stress Test with Back-to-Back Transfers,Stress Tests,"Stress test the APB interface by applying a high-throughput sequence of back-to-back read and write transactions with randomized legal values, while the testbench models backpressure by observing PREADY and only issuing new transactions when PREADY is high. Randomized wait states (PREADY deasserted for random cycles) are introduced to verify correct handling of wait states and transfer extensions, ensuring signal stability and protocol compliance during extended ACCESS phases and high-throughput operation. This scenario stresses the interface's ability to handle wait states, recover from backpressure, and maintain correct state machine operation and signal stability.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 10 cycles to reset the DUT, then deassert PRESETn (set high).
+3) For a large number of cycles (e.g., 1000-5000):
+   a) Randomly select transaction type (read or write) for each cycle.
+   b) For write: Randomize PADDR (full legal range), PWDATA (full legal range), PPROT (all legal values), PNSE (if present), PSTRB (all legal values for write), PWAKEUP, PWRITE=1, PSEL=1, PENABLE=0 (setup phase).
+   c) For read: Randomize PADDR, PPROT, PNSE, PWAKEUP, PWRITE=0, PSTRB=0, PSEL=1, PENABLE=0 (setup phase).
+   d) After one cycle, assert PENABLE=1 (access phase), keep all other signals stable as per protocol.
+   e) For each access phase, randomize the number of cycles PREADY is held low (by DUT) to simulate wait states; only proceed when PREADY=1.
+   f) For back-to-back transfers, immediately start the next transaction in the cycle after PREADY=1, with no idle cycles between transfers.
+   g) Log all input stimulus and observed outputs (PRDATA, PREADY, PSLVERR) for each transaction.
+4) Randomize the number of wait states (by observing PREADY) to cover both minimum (no wait) and maximum (longest observed) wait conditions.","1) For each write, store (PADDR, PWDATA, PPROT, PNSE, PSTRB) in a scoreboard.
+2) For each read, if a previous write to the same (PADDR, PPROT, PNSE) exists, compare PRDATA to the expected value from the scoreboard.
+3) For all addresses written, perform a write-read-compare: issue a read for each address and compare PRDATA to the last written PWDATA for that address.
+4) For each transaction, check that all input signals (PADDR, PPROT, PNSE, PSTRB, PWDATA, PWRITE, PSEL, PENABLE) remain stable during the ACCESS phase and while PREADY is low.
+5) Check that PSTRB is only active (non-zero) during write transactions and always zero during reads.
+6) Check that PSLVERR is only asserted when PREADY=1 and PSEL=1 and PENABLE=1.
+7) For each transaction, check that PREADY is only observed high in legal protocol windows (PSEL & PENABLE asserted).
+8) Confirm that no data is lost or corrupted during extended wait states by comparing all read data to expected scoreboard values.","Functional Coverage:
+1) Cover all legal values of PADDR with bins for min, max, midpoint, and at least 8 evenly spaced intermediate bins across the address range.
+2) Cover all legal values of PWDATA for write transactions: min, max, midpoint, and at least 8 evenly spaced intermediate bins across the data width.
+3) Cover all legal values of PPROT (3 bits): each of the 8 possible values as individual bins.
+4) Cover all legal values of PNSE (if present): PNSE=0, PNSE=1.
+5) Cover all legal values of PSTRB for write transactions: all_clear (0), all_set (all 1s), one_hot (each single bit set), and all legal intermediate patterns for the given DATA_WIDTH/8.
+6) Cover all legal values of PWAKEUP: 0, 1, and toggle patterns (single toggle, burst toggle, always high, always low).
+7) Cover wait state lengths (PREADY held low during access phase): wait_1, wait_2, wait_3_5, wait_6_plus, and cross with transaction type (read/write).
+8) Cross-coverage:
+   - Transaction type (read/write) with wait state length (all combinations).
+   - PPROT with PNSE (all 16 combinations).
+   - PSTRB value with PWDATA min/max.
+   - PADDR (min, max) with PPROT and PNSE.
+   - PWAKEUP activity (toggle/no toggle) with transaction type (read/write).
+9) Cover back-to-back transfer sequences: at least 2 and at least 4 consecutive transfers with no idle cycles.
+10) Cover PSLVERR assertion: PSLVERR=1 in write, PSLVERR=1 in read, PSLVERR=0 in both.
+11) Cover PRDATA for read transactions: min, max, midpoint, and at least 2 random bins.",No Pass/Fail condition.,Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24), ('IHI0024E_amba_apb_architecture_spec.pdf', 34)]"
+APB Concurrent Mixed Transaction Flood with Randomized Attributes,Stress Tests,"Apply a high-throughput, randomized mix of read and write transactions with fully randomized legal values for all input ports (PADDR, PWDATA, PPROT, PNSE, PSTRB, PWAKEUP, PWRITE), including randomized transaction lengths and interleaving, to stress the APB interface's ability to handle concurrent, closely spaced events and attribute combinations under maximum legal load.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 10 cycles to reset the DUT, then deassert PRESETn (set high).
+3) For M cycles (M large, e.g., 2000):
+   a) Randomly select transaction type (read or write) for each cycle.
+   b) For each transaction, randomize all input ports: PADDR (full legal range), PWDATA (full legal range), PPROT (all legal values), PNSE (if present), PSTRB (all legal values for write), PWAKEUP, PWRITE (0 or 1), PSEL=1, PENABLE=0 (setup phase).
+   c) After one cycle, assert PENABLE=1 (access phase), keep all other signals stable as per protocol.
+   d) For each access phase, randomize the number of cycles PREADY is held low (by DUT) to simulate backpressure; only proceed when PREADY=1.
+   e) For maximum stress, allow multiple outstanding transactions by pipelining setup phases (start new setup phase as soon as previous access phase enters wait state).
+   f) Log all input stimulus and observed outputs (PRDATA, PREADY, PSLVERR) for each transaction.
+   g) Ensure that at least one transaction exercises minimum and maximum values for each input port.","1) For each write transaction, after PREADY=1, log the address and data written.
+2) For each read transaction, after PREADY=1, log the address and data read.
+3) After the test, for all addresses written, perform a write-read-compare: issue a read for each address and compare PRDATA to the last written PWDATA for that address.
+4) Check that for each transaction, all input signals remain stable during wait states (PREADY=0).
+5) Check that PSTRB is only active (non-zero) during write transactions and always zero during reads.
+6) Check that PSLVERR is only asserted when PREADY=1 and PSEL=1 and PENABLE=1.
+7) Check that PWAKEUP is asserted at least once during the test.","Functional Coverage:
+1) Cover all legal values of PADDR with the following bins:
+   - min_addr: PADDR at minimum value (all 0s)
+   - max_addr: PADDR at maximum value (all 1s)
+   - mid_addr: PADDR at midpoint value
+   - random_addr: PADDR at random values (at least 4 bins spread across address space)
+2) Cover all legal values of PWDATA for write transactions:
+   - min_data: PWDATA at minimum value (all 0s)
+   - max_data: PWDATA at maximum value (all 1s)
+   - mid_data: PWDATA at midpoint value
+   - random_data: PWDATA at random values (at least 4 bins spread across data space)
+3) Cover all legal values of PPROT (3 bits):
+   - Each of the 8 possible PPROT[2:0] values as individual bins
+4) Cover all legal values of PNSE (if present):
+   - pnse_0: PNSE=0
+   - pnse_1: PNSE=1
+5) Cover all legal values of PSTRB for write transactions:
+   - all_clear: PSTRB=0
+   - all_set: PSTRB=all 1s
+   - one_hot: Each single bit set in PSTRB (one bin per bit)
+   - random_strobe: Random legal values (at least 2 bins)
+6) Cover all legal values of PWAKEUP:
+   - pwakeup_0: PWAKEUP=0
+   - pwakeup_1: PWAKEUP=1
+7) Cover all legal values of PWRITE:
+   - pwrite_0: PWRITE=0 (read)
+   - pwrite_1: PWRITE=1 (write)
+8) Cover wait state lengths (PREADY held low during access phase):
+   - wait_1: PREADY low for 1 cycle
+   - wait_2: PREADY low for 2 cycles
+   - wait_3_5: PREADY low for 3-5 cycles
+   - wait_6_plus: PREADY low for 6 or more cycles
+9) Cross-coverage:
+   - Cross transaction type (read/write) with all randomized attributes (PADDR, PWDATA, PPROT, PNSE, PSTRB, PWAKEUP)
+   - Cross PPROT with PNSE (if present)
+   - Cross PSTRB value with PWDATA min/max
+10) Cover back-to-back and pipelined transaction sequences:
+   - At least 2 consecutive setup phases before previous access phases complete
+   - At least 4 consecutive setup phases before previous access phases complete
+11) Cover PSLVERR:
+   - pslverr_0: PSLVERR=0 for read
+   - pslverr_1: PSLVERR=1 for read
+   - pslverr_0: PSLVERR=0 for write
+   - pslverr_1: PSLVERR=1 for write
+12) Cover PRDATA for read transactions:
+   - min_data: PRDATA at minimum value (all 0s)
+   - max_data: PRDATA at maximum value (all 1s)
+   - mid_data: PRDATA at midpoint value
+   - random_data: PRDATA at random values (at least 2 bins)","Pass:
+1) All write-read-compare checks pass (read data matches last written data for each address).
+2) All protocol checks pass: input signals remain stable during wait states, PSTRB is only active for writes, PSLVERR is only asserted at valid times, PWAKEUP is asserted at least once.
+3) All coverage bins are hit (or at least min/max bins for each relevant signal).
+Fail:
+1) Any write-read-compare mismatch.
+2) Any protocol violation detected (e.g., input signals change during wait state, PSTRB active during read, PSLVERR asserted at invalid time, PWAKEUP never asserted).
+3) Test passes vacuously (no transactions executed).",Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24)]"
+APB Wake-up Stress: Randomized Back-to-Back and Concurrent Transfers with PWAKEUP Monitoring,Stress Tests,"Stress test the APB interface by issuing randomized, back-to-back and bursty read and write transactions with no or minimal idle cycles, while maximizing toggling and concurrency on all sideband and data path input ports. The scenario includes overlapping and interleaved transfers (where protocol allows), randomized toggling of all legal input combinations, and legal backpressure. Throughout, the PWAKEUP signal is monitored to ensure correct assertion and deassertion timing under all legal activity patterns, including high-frequency bursts, overlapping phases, and extended transfers due to backpressure. This scenario aims to maximize activity and concurrency on the interface and ensure PWAKEUP reliably indicates all APB activity, even under maximum throughput and complex stimulus.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then deassert PRESETn (set high) to release reset.
+3) For a large number of cycles (e.g., 10,000):
+   a) Randomly select between issuing a read or write transfer.
+   b) For each transfer, randomize all relevant fields (PADDR, PPROT, PNSE, PSTRB, PWDATA, PWRITE) covering min, max, and random values.
+   c) Randomly select a set of input ports to toggle or hold constant for the next transfer.
+   d) For each transfer, assert PSEL and drive all required inputs as per protocol for setup phase, then assert PENABLE for access phase.
+   e) Randomly overlap the setup phase of a new transfer with the access phase of the previous transfer (if protocol allows), ensuring no protocol violation.
+   f) Randomly insert legal gaps (0-2 cycles) between transfers, but ensure at least some bursts of 10+ consecutive back-to-back transfers with no idle cycles.
+   g) For each transfer, wait for PREADY=1 from DUT, then deassert PSEL and PENABLE.
+   h) For each cycle where a transfer is active (PSEL asserted), assert PWAKEUP=1; deassert PWAKEUP only when no transfer is active.
+   i) Randomly insert legal backpressure by waiting for PREADY to be deasserted by DUT (if supported) and ensure PWAKEUP remains asserted during extended transfers.
+4) Log all transactions, input stimulus, and PWAKEUP activity for post-test analysis.","1) For every cycle, verify that PWAKEUP is asserted (PWAKEUP=1) for every cycle where PSEL is asserted (i.e., during both setup and access phases of each transfer), regardless of which combination of sideband/data path signals are toggling.
+2) For every cycle where no transfer is active (PSEL=0), verify that PWAKEUP is deasserted (PWAKEUP=0).
+3) For each write transaction, log PADDR and PWDATA; for each read, log PADDR and PRDATA; log all randomized input values and the corresponding PWAKEUP activity.
+4) After test, analyze logs to confirm that PWAKEUP correctly reflected all legal activity patterns, including overlapping, interleaved, and bursty transfers.
+5) For all read-after-write to the same address, compare PRDATA with previously written PWDATA for data integrity (if applicable to the DUT's memory model).
+6) Ensure no protocol violations are observed on any port.","Functional Coverage:
+1) Cover all possible values of each input port (PADDR, PPROT, PNSE, PSTRB, PWDATA, PWRITE) during both read and write transactions (min, max, and at least 10 random values each). Bins: For each signal, MIN, MAX, RANDOM[0-9].
+2) Cover all legal values of PPROT (0b000 to 0b111) and PNSE (0,1) in combination (cross coverage). Bins: PPROT_PNSE_CROSS[0-15].
+3) Cover all legal values of PSTRB for write transactions (if present). Bins: PSTRB_ALL_ONES, PSTRB_ALL_ZEROS, PSTRB_SINGLE_BIT[0-n], PSTRB_RANDOM[0-3].
+4) Cover all possible legal combinations of sideband and data path signals during active transfers. Bins: CROSS_PADDR_PPROT_PNSE_PSTRB_PWDATA_PWRITE (selected representative combinations).
+5) Cover the cross of transaction type (read/write) with PWAKEUP assertion. Bins: READ_PWAKEUP_ASSERTED, WRITE_PWAKEUP_ASSERTED.
+6) Cover bins for PWAKEUP asserted for minimum (1 cycle), maximum (longest observed transfer), and typical (random) durations. Bins: PWAKEUP_MIN_DURATION, PWAKEUP_MAX_DURATION, PWAKEUP_TYPICAL_DURATION[0-2].
+7) Cover bins for overlapping setup and access phases (if protocol allows), and for strictly sequential transfers. Bins: OVERLAP_PHASES, SEQUENTIAL_PHASES.
+8) Cover bins for legal gaps (0, 1, 2 cycles) between transfers, and for bursts of 10+ consecutive back-to-back transfers. Bins: GAP_0, GAP_1, GAP_2, BURST_10_PLUS.
+9) Cover bins for back-to-back transfers with no idle cycles, and for transfers extended by backpressure (PREADY deasserted). Bins: BACK_TO_BACK, BACKPRESSURE_EXTENDED.
+10) Cover the cross of PWAKEUP assertion with PREADY backpressure events. Bins: PWAKEUP_ASSERTED_PREADY_HIGH, PWAKEUP_ASSERTED_PREADY_LOW.
+11) Explicitly cover the case where PWAKEUP is asserted for the entire duration of a burst of at least 100 consecutive transfers with randomized input toggling. Bin: PWAKEUP_100_BURST_RANDOM.",No Pass/Fail condition.,Wake-up Signaling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 29)]"
+APB Error Response Stress Test with Back-to-Back Transfers and Interleaved PWAKEUP Activity,Stress Tests,"Stress test the APB interface by issuing a high volume of back-to-back read and write transactions with randomized legal values, while toggling PWAKEUP in various legal patterns (before, during, and after transfers, including during backpressure). The objective is to maximize the likelihood of error responses and to verify that PSLVERR is asserted only during valid transfer completion cycles (when PSEL, PENABLE, and PREADY are all high), and never otherwise, even under maximum throughput, backpressure, and PWAKEUP activity. Additionally, ensure that PWAKEUP activity does not cause protocol violations or incorrect error signaling.","1) Continuously drive PCLK throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 cycles of PCLK, then de-assert PRESETn (set high) to release reset.
+3) For a large number of cycles (e.g., 10,000+):
+   a) Randomly select between issuing a read or write transfer.
+   b) For write: Randomize PADDR (full legal range), PPROT, PNSE, PSTRB (legal for DATA_WIDTH), PWAKEUP, PWDATA (legal for DATA_WIDTH), PWRITE=1. For read: Randomize PADDR, PPROT, PNSE, PWAKEUP, PWRITE=0.
+   c) Assert PSEL high for one cycle (setup phase), then assert PENABLE high for the access phase.
+   d) For each transfer, randomize legal backpressure by waiting a random number of cycles (0 to N) before PREADY is observed high (PREADY is output, so testbench waits for it).
+   e) For each transfer, immediately start the next transfer in the cycle after PREADY is observed high (no idle cycles between transfers).
+   f) Independently randomize PWAKEUP toggling: assert/deassert before, during, or after each transfer, including toggling during backpressure (PREADY low).
+4) Throughout the test, monitor PRDATA, PREADY, and PSLVERR outputs for each transfer completion.","1) For every transfer completion (PSEL, PENABLE, and PREADY all high):
+   a) If PSLVERR is asserted, log the transfer details (address, type, data, etc.) and ensure PSLVERR is asserted only in this cycle.
+   b) For all other cycles (when any of PSEL, PENABLE, or PREADY is not high), check that PSLVERR is not asserted.
+2) For each transfer, ensure that PSLVERR is never asserted outside of valid transfer completion cycles.
+3) Track the number of error responses and ensure they only occur at legal times.
+4) Track PWAKEUP activity and ensure that toggling PWAKEUP does not cause PSLVERR to be asserted incorrectly.
+5) Optionally, for write/read data integrity, log PRDATA and PWDATA for error and non-error cases for post-test analysis.","Functional Coverage:
+1) Cover all possible legal values of PADDR (min, max, and representative random values). Bins: PADDR_MIN, PADDR_MAX, PADDR_RANDOM.
+2) Cover all possible legal values and combinations of PPROT[2:0] and PNSE (including all combinations for address space: Secure, Non-secure, Root, Realm). Bins: PPROT_PNSE_SECURE, PPROT_PNSE_NONSECURE, PPROT_PNSE_ROOT, PPROT_PNSE_REALM.
+3) For write transfers, cover all legal values of PSTRB (all 0s, all 1s, and representative random patterns). Bins: PSTRB_ALL0, PSTRB_ALL1, PSTRB_RANDOM.
+4) For write transfers, cover PWDATA (min, max, random). Bins: PWDATA_MIN, PWDATA_MAX, PWDATA_RANDOM.
+5) For read transfers, cover PRDATA (min, max, random). Bins: PRDATA_MIN, PRDATA_MAX, PRDATA_RANDOM.
+6) Cover all legal values and toggling patterns of PWAKEUP (asserted before, during, after transfer; toggled during backpressure). Bins: PWAKEUP_BEFORE, PWAKEUP_DURING, PWAKEUP_AFTER, PWAKEUP_DURING_PREADY_LOW.
+7) Cross coverage: transfer type (read/write via PWRITE) with PSLVERR assertion (error/no error). Bins: READ_ERROR, READ_NO_ERROR, WRITE_ERROR, WRITE_NO_ERROR.
+8) Cross coverage: PWAKEUP activity with PSLVERR assertion (error/no error). Bins: PWAKEUP_WITH_ERROR, PWAKEUP_WITHOUT_ERROR.
+9) PSLVERR assertion at minimum, maximum, and random PADDR, and with PWAKEUP toggled during the transfer. Bins: PSLVERR_AT_PADDR_MIN, PSLVERR_AT_PADDR_MAX, PSLVERR_AT_PADDR_RANDOM, PSLVERR_WITH_PWAKEUP_TOGGLE.
+10) PSLVERR asserted during both read and write transfers. Bins: PSLVERR_ON_READ, PSLVERR_ON_WRITE.
+11) Back-to-back error responses (consecutive PSLVERR assertions). Bins: PSLVERR_CONSECUTIVE, PSLVERR_NONCONSECUTIVE.
+12) Maximum and minimum backpressure (PREADY low for 0 cycles, for N cycles) with and without PWAKEUP toggling. Bins: PREADY_ZERO_WAIT, PREADY_MAX_WAIT, PREADY_ZERO_WAIT_PWAKEUP, PREADY_MAX_WAIT_PWAKEUP.
+13) Consecutive transfers with and without PSLVERR assertion, with and without PWAKEUP toggling. Bins: CONSECUTIVE_WITH_ERROR, CONSECUTIVE_WITHOUT_ERROR, CONSECUTIVE_WITH_ERROR_PWAKEUP, CONSECUTIVE_WITHOUT_ERROR_PWAKEUP.",No Pass/Fail condition.,Error Response Handling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 25), ('IHI0024E_amba_apb_architecture_spec.pdf', 26)]"
+APB Back-to-Back Mixed Read/Write Stress Test with Full Signal Randomization and Protocol Coverage,Stress Tests,"Apply a high-throughput, back-to-back sequence of randomized APB-compliant read and write transactions with no idle cycles, fully randomizing all legal values on all input ports. This scenario maximizes bus utilization, stresses the APB state machine transitions (IDLE, SETUP, ACCESS), signal validity rules, and output response under maximum legal load. It ensures the APB interface can handle high-frequency, protocol-compliant traffic without data corruption or protocol violation, and covers all legal combinations of address, data, protection, and sideband signals.","1) Continuously drive PCLK throughout the test.
+2) After 5-10 cycles, assert PRESETn low for 8 cycles, then deassert (PRESETn high) to release reset.
+3) For a large number of cycles (e.g., 10,000):
+   a) Randomly select transaction type (read or write) for each transaction.
+   b) For write:
+      - Randomize PADDR (covering min, max, and evenly spaced legal values), PWDATA (full legal range), PSTRB (all legal combinations), PPROT (0-7), PNSE (0/1), PWAKEUP (toggle as allowed), PWRITE=1, PSEL=1, PENABLE=0.
+   c) For read:
+      - Randomize PADDR, PPROT, PNSE, PWAKEUP, PWRITE=0, PSEL=1, PENABLE=0, PSTRB=0.
+   d) Assert PSEL and drive all inputs as above for one cycle (SETUP phase).
+   e) On next cycle, assert PENABLE=1, keep all other signals stable (ACCESS phase).
+   f) Wait for PREADY=1 from DUT (may be extended by DUT for backpressure). During wait, keep all inputs stable as per protocol.
+   g) For write, deassert PSEL and PENABLE after PREADY=1. For read, capture PRDATA and PSLVERR when PREADY=1, then deassert PSEL and PENABLE.
+   h) Immediately start the next transaction in the next cycle (no idle cycles).
+4) Randomly toggle PWAKEUP within legal timing (before, during, or after PSEL assertion) to stress wakeup handling.
+5) Randomize legal timing for PREADY and PSLVERR (output, observed only), including backpressure (PREADY low for random cycles).
+6) Log all stimulus and observed outputs for later checking.","1) For each write, log (PADDR, PWDATA, PSTRB, PPROT, PNSE) and verify that subsequent read to the same PADDR returns the expected PRDATA (if readable).
+2) For each read, compare PRDATA to expected value if previously written; log PSLVERR and ensure error handling is as expected.
+3) Track outstanding transactions and ensure all responses are received and matched to requests.
+4) Check that no transactions are lost, duplicated, or reordered under high-throughput conditions.
+5) For each transaction, check that PRDATA, PREADY, PSLVERR are only sampled/checked when protocol allows (i.e., when PSEL, PENABLE, and PREADY are asserted for PRDATA/PSLVERR).
+6) For each transaction, verify that output signals are stable and valid only in their required protocol phases.","Functional Coverage:
+1) Cover all legal values of PADDR (min, max, and at least 8-10 evenly spaced bins across the address range).
+2) Cover all legal values of PWDATA (min, max, and at least 8-10 evenly spaced bins across the data width).
+3) Cover all legal values of PSTRB for writes (all 0s, all 1s, and all legal intermediate patterns for the given width; for reads: all 0s only).
+4) Cover all legal values of PPROT (0-7) and PNSE (0/1), including all 16 cross combinations.
+5) Cover all legal values and transitions of PWAKEUP (asserted/deasserted at different phases: before, during, after PSEL assertion; bins for 0, 1, rising, falling, burst toggle, always high, always low).
+6) Cover the cross of transaction type (read/write) with PREADY response (immediate, 1-cycle delay, maximum observed delay; bins for each combination).
+7) Cover back-to-back transitions between read and write transactions (write -> read, read -> write, write -> write, read -> read).
+8) Cover PSLVERR asserted and deasserted on both read and write responses.
+9) Cover the cross of PADDR (min, max) with PPROT and PNSE (all combinations).
+10) Cover the cross of PSTRB (min, max) with PWDATA (min, max).
+11) Cover the cross of PWAKEUP activity (toggle/no toggle) with transaction type (read/write).
+12) All coverpoints and cross-coverage are strictly based on the provided top-level port list: PRESETn, PCLK, PWDATA, PENABLE, PRDATA, PADDR, PWRITE, PSTRB, PPROT, PNSE, PSLVERR, PWAKEUP, PREADY, PSEL.",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 34), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+"APB Stress Test: Maximum Backpressure, Recovery, and Signal Validity with Randomized Transaction Bursts",Stress Tests,"This scenario stress tests the APB interface by issuing continuous, back-to-back bursts of read and write transactions with randomized legal input values, while the DUT is subjected to maximum legal backpressure (PREADY held low for extended, randomized cycles), then rapidly recovers to normal operation. The scenario exercises the DUT's ability to handle queue saturation, maintain data integrity, recover from extended backpressure, and ensures all output signals are valid only in their required protocol phases. It also stresses wakeup handling and covers all legal values and transitions for APB signals under extreme flow control conditions.","1) Continuously drive PCLK throughout the test.
+2) After 5-10 cycles of PCLK, assert PRESETn low for 8 cycles, then deassert (PRESETn high).
+3) For a large number of bursts (e.g., 1000):
+   a) For each transaction in a burst (burst length random between 8 and 32):
+      i) Randomly select transaction type (read or write).
+      ii) For write: Randomize all legal values for PADDR, PWDATA, PSTRB, PPROT, PNSE, PWAKEUP, PWRITE (1), PSEL (asserted), PENABLE (asserted in ACCESS phase).
+      iii) For read: Randomize all legal values for PADDR, PPROT, PNSE, PWAKEUP, PWRITE (0), PSEL (asserted), PENABLE (asserted in ACCESS phase), PSTRB (all zeros), PWDATA (don't care).
+      iv) For each transaction, after SETUP, assert PENABLE and hold PREADY (output, observed only) low for a randomized, protocol-legal number of cycles (e.g., 2 to 16), then allow PREADY to go high for completion.
+      v) During backpressure, keep all inputs stable as per protocol.
+      vi) After PREADY=1, deassert PSEL and PENABLE, then immediately start the next transaction (no idle cycles).
+      vii) Randomly toggle PWAKEUP within legal timing to stress wakeup handling during backpressure.
+   b) After each burst, allow PREADY to remain high for a random number of cycles (between 1 and 8) to simulate recovery.
+   c) Alternate transaction types within and between bursts.
+   d) Log all stimulus and observed outputs for later checking.","1) For each write, log (PADDR, PWDATA, PSTRB, PPROT, PNSE) and verify that subsequent read to the same PADDR returns the expected PRDATA (if readable).
+2) For each read, compare PRDATA to expected value if previously written; if not, check for default/initial value. Log PSLVERR and ensure error handling is as expected.
+3) Track the number of cycles PREADY is held low and ensure that all transactions eventually complete and no data is lost or duplicated.
+4) For each transaction, check that PRDATA, PREADY, PSLVERR are only sampled/checked when protocol allows (i.e., when PSEL, PENABLE, and PREADY are asserted for PRDATA/PSLVERR).
+5) Verify that output signals are stable and valid only in their required protocol phases.
+6) Explicitly check that no transaction is lost, duplicated, or reordered during extended backpressure and recovery.
+7) Check that the DUT recovers correctly from extended backpressure and resumes normal operation.","Functional Coverage:
+- Cover all legal values of PADDR, PWDATA, PSTRB, PPROT, PNSE, PWAKEUP, PWRITE during backpressure and recovery. Bins for min, max, and evenly spaced values.
+- Cover cross of transaction type (read/write) with maximum, minimum, and random PREADY extension cycles (e.g., 2, 4, 8, 16 cycles).
+- Cover transitions from extended backpressure (PREADY low) to normal operation (PREADY high).
+- Cover back-to-back transitions between read and write transactions under backpressure and recovery.
+- Cover PSLVERR asserted and deasserted on both read and write responses during and after backpressure.
+- Cover all legal combinations and transitions for PPROT, PNSE, PSTRB, and PWAKEUP during backpressure.
+- Cross-coverage of PWRITE (read/write) with PREADY backpressure duration, PPROT and PNSE, and PSLVERR (0/1) during and after backpressure.
+- All coverpoints and cross-coverage are strictly based on the provided top-level port list: PRESETn, PCLK, PWDATA, PENABLE, PRDATA, PADDR, PWRITE, PSTRB, PPROT, PNSE, PSLVERR, PWAKEUP, PREADY, PSEL.",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+write_transfer_with_invalid_pstrb_encoding,Error and Negative Tests,"Verify DUT behavior when PSTRB is set to an invalid encoding (e.g., all zeros) during a write transfer, which should result in no byte lanes being selected for update.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles to reset the DUT, then deassert PRESETn.
+3) After reset, initiate a write transfer sequence:
+   a) Set PADDR to a valid aligned address, PWRITE high, PSEL high, PENABLE low, PSTRB to all zeros, PWAKEUP low, PNSE and PPROT to valid values, PWDATA to a random value.
+   b) On the next rising edge of PCLK, assert PENABLE high, keep PSEL high, PWRITE high, and maintain PSTRB as all zeros.
+   c) Wait for PREADY to be asserted by the DUT, then deassert PSEL and PENABLE to complete the transfer.
+4) After the write, perform a read transfer to the same address to check if any data was updated.
+5) Repeat for various addresses and PWDATA values.","1) After each write with PSTRB=0, perform a read to the same address and check that PRDATA matches the pre-write value (i.e., no update occurred).
+2) Check if PSLVERR is asserted by the DUT during the write with PSTRB=0.
+3) Log PRDATA and PSLVERR values for each transfer for post-test analysis.","Functional Coverage:
+  1) Cover bin: PSTRB=all zeros during write.
+  2) Cover bin: PSTRB=all ones during write (for reference).
+  3) Cover bin: PSTRB=random non-zero value during write.
+  4) Cross coverage: (PSTRB value) x (PADDR minimum, maximum, random).
+  5) Cover bin: PSLVERR asserted during write with PSTRB=0.
+  6) Cover bin: PSLVERR not asserted during write with PSTRB=0.","Pass:
+  1) DUT does not update any byte lanes when PSTRB=0 during write.
+  2) PSLVERR is asserted if required by the DUT's implementation for this error case.
+  3) No protocol violations (e.g., PREADY, PSLVERR timing) occur during the test.
+Fail:
+  1) DUT updates any byte lane when PSTRB=0 during write.
+  2) PSLVERR is not asserted when required, or is asserted unexpectedly.
+  3) Any protocol violation is observed.",Signal Validity Rules Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+pstrb_active_during_read_transfer,Error and Negative Tests,"Verify that the DUT asserts any bit of PSTRB during a read transfer (PWRITE=0), which is illegal per specification. The DUT must not drive PSTRB active during read cycles.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles, then deassert to bring DUT out of reset.
+3) For each read transfer:
+   a) Randomly select a valid PADDR.
+   b) Set PWRITE=0 (read), PSEL=1, PENABLE=0, PSTRB=0 (as per protocol, but monitor DUT output for illegal assertion).
+   c) Drive PPROT, PNSE, PWAKEUP as required by protocol (if present in port list).
+   d) After one cycle, set PENABLE=1, keep PSEL=1, PWRITE=0, PSTRB=0.
+   e) Wait for PREADY=1 from DUT.
+   f) Deassert PSEL and PENABLE.
+4) Repeat for minimum and maximum PADDR values, and for all legal PSTRB widths (if parameterized).
+5) Monitor PSTRB output from DUT during all read transfers for any non-zero value.","1) For every read transfer (PWRITE=0), check that PSTRB remains 0 for the entire duration of the transfer (from PSEL assertion until PREADY=1).
+2) If any bit of PSTRB is observed high during a read transfer, log the cycle and flag as error.
+3) Scoreboard: For each read transfer, record PSTRB value and compare against expected (all zeros).","Functional Coverage:
+1) Coverpoint: PSTRB value during read transfer (PWRITE=0, PSEL=1, PENABLE=1)
+   - Bin: read_transfer_pstrb_all_zero â€“ PSTRB observed as all zeros during a read transfer (legal)
+   - Bin: read_transfer_pstrb_nonzero â€“ PSTRB observed as non-zero during a read transfer (illegal, negative bin)
+2) Coverpoint: PADDR value during read transfer
+   - Bin: read_transfer_min_addr â€“ Read transfer at minimum PADDR value
+   - Bin: read_transfer_max_addr â€“ Read transfer at maximum PADDR value
+3) Coverpoint: PSTRB width (if parameterized)
+   - Bin: pstrb_width_1 â€“ PSTRB width is 1
+   - Bin: pstrb_width_2 â€“ PSTRB width is 2
+   - Bin: pstrb_width_4 â€“ PSTRB width is 4
+   (Add bins for all legal PSTRB widths supported by the DUT)
+4) Cross coverage:
+   - Cross: (PADDR: min, max) Ã— (PSTRB: zero, non-zero) during read transfer
+
+All coverage points are based only on the following top-level ports: PSTRB, PADDR, PWRITE, PSEL, PENABLE.","Pass:
+1) All read transfers observe PSTRB=0 for the entire duration.
+2) No cycle during any read transfer has PSTRB bit(s) high.
+Fail:
+1) Any cycle during a read transfer where PSTRB is non-zero.
+2) Scoreboard detects mismatch between expected (zero) and observed PSTRB during read transfer.",Write Strobe Functionality Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 17), ('IHI0024E_amba_apb_architecture_spec.pdf', 22)]"
+pstrb_incorrect_byte_lane_mapping,Error and Negative Tests,"Verify that the DUT incorrectly maps PSTRB bits to PWDATA byte lanes during write transfers, i.e., PSTRB[n] does not correspond to PWDATA[(8n+7):(8n)] as required by the specification.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles, then deassert to bring DUT out of reset.
+3) For each write transfer:
+   a) Randomly select a valid PADDR.
+   b) Set PWRITE=1 (write), PSEL=1, PENABLE=0.
+   c) For each legal PSTRB width (e.g., 4 for 32-bit PWDATA), iterate through all single-bit and multi-bit patterns (e.g., 0001, 0010, 0100, 1000, 0011, 1100, 1111).
+   d) For each pattern, set PSTRB to the pattern and PWDATA such that only the corresponding byte lanes (as per spec: PSTRB[n] <-> PWDATA[(8n+7):(8n)]) are non-zero; other bytes are zero.
+   e) Drive PPROT, PNSE, PWAKEUP as required by protocol (if present in port list).
+   f) After one cycle, set PENABLE=1, keep PSEL=1, PWRITE=1, PSTRB and PWDATA stable.
+   g) Wait for PREADY=1 from DUT.
+   h) Deassert PSEL and PENABLE.
+4) Repeat for minimum and maximum PADDR values.
+5) Monitor DUT's handling of PSTRB and PWDATA mapping (requires scoreboard or reference model to check correct byte enable behavior).","1) For each write transfer, check that only the byte lanes of PWDATA corresponding to asserted PSTRB[n] are written (as per PSTRB[n] <-> PWDATA[(8n+7):(8n)] mapping).
+2) Scoreboard: For each write, compare expected written data (based on PSTRB and PWDATA) with observed data (via subsequent readback or reference model).
+3) If any byte lane is written when PSTRB[n]=0, or not written when PSTRB[n]=1, flag as error.
+4) Log all mismatches between expected and observed byte lane updates.","Functional Coverage:
+1) Coverpoint: PSTRB pattern during write transfer (PWRITE=1, PSEL=1, PENABLE=1)
+   - Bin: write_transfer_pstrb_single_bit â€“ Each individual PSTRB[n]=1, others zero (one bin per bit)
+   - Bin: write_transfer_pstrb_all_bits â€“ All PSTRB bits set (full write)
+   - Bin: write_transfer_pstrb_none â€“ All PSTRB bits zero (should not write any byte lane)
+   - Bin: write_transfer_pstrb_multi_bit â€“ Multiple PSTRB bits set (e.g., 0011, 1100, 1010, 0110, 1111, etc.)
+2) Coverpoint: PADDR value during write transfer
+   - Bin: write_transfer_min_addr â€“ Write at minimum PADDR
+   - Bin: write_transfer_max_addr â€“ Write at maximum PADDR
+3) Coverpoint: PSTRB width (if parameterized)
+   - Bin: pstrb_width_1 â€“ PSTRB width is 1
+   - Bin: pstrb_width_2 â€“ PSTRB width is 2
+   - Bin: pstrb_width_4 â€“ PSTRB width is 4
+   (Add bins for all legal PSTRB widths supported by the DUT)
+4) Cross coverage:
+   - Cross: (PSTRB pattern: single, multi, all, none) Ã— (PADDR: min, max)
+
+All coverage points are based only on the following top-level ports: PSTRB, PADDR, PWRITE, PSEL, PENABLE, PWDATA.","Pass:
+1) For every write transfer, only the byte lanes indicated by PSTRB[n]=1 are updated in the DUT.
+2) No byte lane is updated when PSTRB[n]=0.
+Fail:
+1) Any byte lane is updated when PSTRB[n]=0, or not updated when PSTRB[n]=1.
+2) Scoreboard detects mismatch between expected and observed written data per byte lane.",Write Strobe Functionality Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 17), ('IHI0024E_amba_apb_architecture_spec.pdf', 22)]"
+pslverr_assertion_on_read_with_invalid_address_alignment,Error and Negative Tests,"Verify that the DUT asserts PSLVERR in response to a read transfer with an unaligned address, as the spec states the result is UNPREDICTABLE and a Completer may signal an error response. This scenario checks that PSLVERR is asserted only during valid transfer completion cycles for such accesses.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles after 5 cycles of PCLK, then deassert PRESETn (set high) to release reset.
+3) For each data width (8, 16, 32 bits):
+   a) Select an address value for PADDR that is not aligned to the data width (e.g., for 32-bit, use PADDR[1:0]!=0).
+   b) Initiate a read transfer:
+      i) Assert PSEL, drive PADDR (unaligned), set PWRITE=0, drive valid PPROT, PNSE.
+      ii) Assert PENABLE in the next cycle.
+      iii) Wait for PREADY from DUT.
+      iv) Observe PSLVERR during the transfer completion cycle (PSEL=1, PENABLE=1, PREADY=1).
+   c) Deassert PSEL and PENABLE after transfer completion.
+4) Repeat for minimum and maximum unaligned addresses for each data width.","1) For each unaligned read transfer, check that PSLVERR is asserted only during the valid transfer completion cycle (PSEL=1, PENABLE=1, PREADY=1).
+2) For each transfer, log whether PSLVERR was asserted and the value of PRDATA.
+3) At the end of the test, report any instance where PSLVERR was not asserted during the valid transfer completion cycle for an unaligned address, or was asserted outside of the valid cycle.","Functional Coverage:
+1) Cover bins for each data width (8, 16, 32 bits) with unaligned address accesses. (Note: Only use PADDR and PWDATA/PRDATA widths as per top-level port list; do not reference data width signals outside port list.)
+2) Cover bins for minimum and maximum unaligned addresses for each data width.
+3) Cover PSLVERR assertion during valid transfer completion cycle for each data width.
+4) Cross coverage of (data width) Ã— (unaligned address) Ã— (PSLVERR assertion).
+5) Cover PSLVERR=1 and PSLVERR=0 for unaligned and aligned accesses (to confirm negative and positive cases).","Pass:
+- PSLVERR is asserted only during the valid transfer completion cycle (PSEL=1, PENABLE=1, PREADY=1) for unaligned read accesses.
+- PSLVERR is not asserted outside of the valid cycle.
+- For aligned accesses, PSLVERR is not asserted.
+Fail:
+- PSLVERR is not asserted during the valid cycle for unaligned accesses.
+- PSLVERR is asserted outside of the valid cycle.
+- PSLVERR is asserted for aligned accesses.",Error Response Handling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 25), ('IHI0024E_amba_apb_architecture_spec.pdf', 26)]"
+pslverr_assertion_on_invalid_transfer_completion,Error and Negative Tests,"Verify that PSLVERR is not asserted except during valid transfer completion cycles (i.e., only when PSEL, PENABLE, and PREADY are all high). Intentionally create transfer sequences where PSLVERR is asserted by the DUT outside of these conditions and check for protocol compliance.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles after 5 cycles of PCLK, then deassert PRESETn (set high) to release reset.
+3) For each test iteration:
+   a) Initiate a transfer by asserting PSEL and driving valid PADDR, PPROT, PNSE, PWRITE, PWDATA, and PSTRB as appropriate for a write or read transfer.
+   b) Assert PENABLE in the next cycle to enter the ACCESS phase.
+   c) For negative testing, during cycles where PSEL and/or PENABLE and/or PREADY are not all high (e.g., PSEL=1, PENABLE=0, PREADY=1; or PSEL=0, PENABLE=1, PREADY=1; etc.), monitor PSLVERR output.
+   d) Complete the transfer by asserting PREADY (from DUT) and deasserting PSEL and PENABLE as per protocol.
+   e) Repeat for all combinations where at least one of PSEL, PENABLE, or PREADY is low during the cycle.
+4) Log PSLVERR output for each cycle and the values of PSEL, PENABLE, and PREADY.","1) For every cycle, check that PSLVERR is only asserted (high) when PSEL=1, PENABLE=1, and PREADY=1. If PSLVERR is asserted in any other combination, flag as a protocol violation.
+2) For each transfer, log the cycle in which PSLVERR is asserted and compare with the expected valid transfer completion cycle.
+3) At the end of the test, report any instance where PSLVERR was asserted outside of a valid transfer completion cycle.","Functional Coverage:
+1) Cover all 8 possible combinations of (PSEL, PENABLE, PREADY) for PSLVERR assertion:
+   - Bin: PSLVERR asserted when (PSEL=1, PENABLE=1, PREADY=1) [valid]
+   - Bin: PSLVERR asserted when (PSEL=1, PENABLE=1, PREADY=0)
+   - Bin: PSLVERR asserted when (PSEL=1, PENABLE=0, PREADY=1)
+   - Bin: PSLVERR asserted when (PSEL=0, PENABLE=1, PREADY=1)
+   - Bin: PSLVERR asserted when (PSEL=1, PENABLE=0, PREADY=0)
+   - Bin: PSLVERR asserted when (PSEL=0, PENABLE=1, PREADY=0)
+   - Bin: PSLVERR asserted when (PSEL=0, PENABLE=0, PREADY=1)
+   - Bin: PSLVERR asserted when (PSEL=0, PENABLE=0, PREADY=0)
+2) Cover minimum and maximum values of PSLVERR (0 and 1) during all transfer phases.
+3) Cross coverage of PSLVERR assertion with transfer type (read/write via PWRITE).
+4) Cross coverage of PSLVERR assertion with PADDR minimum and maximum values.","Pass:
+- PSLVERR is only asserted when PSEL=1, PENABLE=1, and PREADY=1.
+- PSLVERR is never asserted in any other combination of PSEL, PENABLE, and PREADY.
+Fail:
+- PSLVERR is asserted in any cycle where PSEL, PENABLE, and PREADY are not all high.
+- PSLVERR is not asserted during a valid error transfer completion (if error is expected).",Error Response Handling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 25), ('IHI0024E_amba_apb_architecture_spec.pdf', 26)]"
+apb_write_transfer_with_unaligned_address_error,Error and Negative Tests,"Test APB write transfers where PADDR is intentionally set to unaligned values (not aligned to data width), which is defined as UNPREDICTABLE in the specification. Verify that the DUT signals an error via PSLVERR or otherwise indicates UNPREDICTABLE behavior when such accesses are attempted. The scenario covers minimum, maximum, and random unaligned addresses for each supported DATA_WIDTH, and observes the DUT's response as per the protocol.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles to reset the DUT, then deassert PRESETn.
+3) For each supported DATA_WIDTH (8, 16, 32 bits):
+   a) Select unaligned addresses (minimum, maximum, and random) that are not aligned to the DATA_WIDTH (e.g., for 32-bit, use addresses not divisible by 4).
+   b) Set up a write transfer:
+      i) Drive PADDR with the unaligned address.
+      ii) Set PWRITE high, PSEL high, PENABLE low, and drive PWDATA and PSTRB with valid values (PSTRB to all ones and random values).
+      iii) Set PPROT, PNSE, PWAKEUP to valid values.
+   c) On the next PCLK rising edge, assert PENABLE high (Access phase).
+   d) Wait for PREADY to be asserted by the DUT.
+   e) Deassert PSEL and PENABLE after transfer completes.
+4) Repeat for all selected unaligned addresses for each DATA_WIDTH.","1) For each unaligned write transfer, check if PSLVERR is asserted by the DUT in the same cycle as PREADY is asserted (i.e., transfer completion).
+2) Log the value of PSLVERR, PREADY, and PRDATA (if any) for each transfer and compare against expected error or UNPREDICTABLE response.
+3) Ensure that no protocol violations occur (e.g., PREADY not asserted, or transfer not completed).
+4) Compare observed PSLVERR behavior against the expected (UNPREDICTABLE) response as per the specification.","Functional Coverage:
+  1) Cover bin: unaligned_addr_min - minimum unaligned address for each DATA_WIDTH (using PADDR).
+  2) Cover bin: unaligned_addr_max - maximum unaligned address for each DATA_WIDTH (using PADDR).
+  3) Cover bin: unaligned_addr_random - random unaligned addresses for each DATA_WIDTH (using PADDR).
+  4) Cover bin: pslverr_asserted_on_unaligned_write - PSLVERR asserted during unaligned write transfer (PSLVERR, PREADY, PWRITE, PSEL, PENABLE all high in the same cycle).
+  5) Cover bin: PSLVERR not asserted during unaligned write.
+  6) Cross coverage: (DATA_WIDTH) x (unaligned_addr_min, unaligned_addr_max, unaligned_addr_random) x (PSLVERR assertion).
+  7) Cross coverage: (PADDR alignment) x (PSTRB value: all ones, random).
+All coverage points are based only on the following top-level ports: PADDR, PWRITE, PWDATA, PSTRB, PPROT, PNSE, PSEL, PENABLE, PREADY, PSLVERR, PCLK, PRESETn, PWAKEUP.",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+apb_read_transfer_with_invalid_pstrb_assertion_combined,Error and Negative Tests,"Verify that the DUT correctly handles the illegal case where PSTRB is asserted (non-zero) during a read transfer, which is explicitly forbidden by the APB specification. The test checks both the error signaling (PSLVERR) and that the DUT does not use PSTRB to gate or modify PRDATA during read transfers. The scenario covers all supported DATA_WIDTHs and a range of addresses and PSTRB patterns (minimum non-zero, maximum, random).","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles to reset the DUT, then deassert PRESETn.
+3) For each supported DATA_WIDTH (8, 16, 32 bits):
+   a) Select a valid aligned address for the data width.
+   b) Set up a read transfer:
+      i) Drive PADDR with the aligned address.
+      ii) Set PWRITE low, PSEL high, PENABLE low, and drive PSTRB with a non-zero value (e.g., minimum non-zero, maximum, or random pattern).
+      iii) Set PPROT, PNSE, PWAKEUP to valid values.
+   c) On the next PCLK rising edge, assert PENABLE high (Access phase).
+   d) Wait for PREADY to be asserted by the DUT.
+   e) Deassert PSEL and PENABLE after transfer completes.
+4) Repeat for minimum and maximum addresses within the address space and for all relevant PSTRB patterns.
+5) Include a reference case where PSTRB is all zeros during read (legal case).","1) For each read transfer with PSTRB non-zero, check that PSLVERR is asserted high by the DUT in the same cycle as PREADY is asserted (if required by the spec).
+2) Check that the DUT does not use PSTRB to gate or modify PRDATA during the read transfer; PRDATA should be as expected from a golden model.
+3) Log the value of PSLVERR for each transfer and compare against expected error response.
+4) Log and flag any deviation from expected protocol behavior (e.g., data corruption, unexpected error signaling, protocol violations).
+5) For legal cases (PSTRB all zeros during read), check that PSLVERR is not asserted and PRDATA is correct.","Functional Coverage:
+  1) Cover all possible non-zero values of PSTRB during read transfers (minimum non-zero, maximum, random patterns).
+  2) Cover PSLVERR assertion in response to each non-zero PSTRB value during read.
+  3) Cover the case where PSTRB is correctly all zeros during read (legal case, PSLVERR not asserted).
+  4) Cross coverage: (DATA_WIDTH) x (address bins: min, max, random) x (PSTRB value: 0, non-zero, max) x (PSLVERR assertion).
+  5) Cover minimum and maximum values of PADDR for read transfers with invalid PSTRB.
+  6) Cover bin: PRDATA observed for each PSTRB value during read.
+  7) Cover bin: PREADY response for each PSTRB value during read.",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24), ('IHI0024E_amba_apb_architecture_spec.pdf', 34), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+apb_transfer_with_illegal_or_reserved_pprot_encoding,Error and Negative Tests,"Drive APB transactions (both read and write) with illegal or reserved PPROT[2:0] encodings and verify that the DUT responds with an error (PSLVERR) as per the protection and security attribute specification. This scenario ensures the DUT handles undefined protection types correctly for both transfer types, and that no protocol violations occur.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles after 5 cycles of PCLK, then deassert PRESETn to bring the DUT out of reset.
+3) For each illegal or reserved PPROT[2:0] encoding (if any are defined as illegal by the implementation, e.g., encodings not mapped to Normal/Privileged, Secure/Non-secure, Data/Instruction):
+   a) Issue a write transfer:
+      i) Assert PSEL high, PENABLE low, set PADDR to a valid aligned address, PWRITE high, PWDATA to a random value, PSTRB to all ones, PWAKEUP high or low as required, and drive the illegal PPROT value.
+      ii) After one cycle, assert PENABLE high, keep all other signals stable.
+      iii) Wait for PREADY high or timeout.
+      iv) Deassert PSEL and PENABLE.
+      v) Optionally, after the write, perform a read to the same address and check if the data was updated or not, depending on the DUT's error handling.
+   b) Issue a read transfer with the same illegal PPROT value:
+      i) Assert PSEL high, PENABLE low, set PADDR to a valid address, PWRITE low, PSTRB to all ones, PWAKEUP high or low as required, and drive the illegal PPROT value.
+      ii) After one cycle, assert PENABLE high, keep all other signals stable.
+      iii) Wait for PREADY high or timeout.
+      iv) Deassert PSEL and PENABLE.
+4) Repeat for all illegal/reserved PPROT encodings.
+5) For reference, perform at least one legal PPROT encoding transfer (both read and write) and check that PSLVERR is not asserted.","1) For each transaction with illegal/reserved PPROT encoding, check that PSLVERR is asserted by the DUT during the last cycle of the transfer (when PSEL, PENABLE, and PREADY are all high).
+2) For read transfers, check that PRDATA is captured and logged for reference (data may be invalid as per spec).
+3) For write transfers, after the write, perform a read to the same address and check if the data was updated or not, depending on the DUT's error handling.
+4) Log all PSLVERR assertions and ensure they correspond to the illegal PPROT encodings only.
+5) For legal PPROT encodings, check that PSLVERR is not asserted.
+6) Ensure no protocol violations occur (e.g., PREADY not asserted, transaction hangs).","Functional Coverage:
+1) Cover each illegal/reserved PPROT[2:0] encoding used in a transfer. Define a bin for each illegal encoding value observed on PPROT[2:0] (e.g., illegal_pprot_000, illegal_pprot_001, ..., illegal_pprot_111 as applicable per spec and implementation).
+2) Cover both write (PWRITE=1) and read (PWRITE=0) transfer types with illegal PPROT encodings. Define bins for illegal_write and illegal_read for each illegal PPROT value.
+3) Cover PSLVERR assertion (PSLVERR=1) for each illegal PPROT encoding during the last cycle of the transfer (when PSEL=1, PENABLE=1, PREADY=1). Define bins for PSLVERR_asserted_per_illegal_pprot.
+4) Explicitly cover minimum (PPROT=3'b000) and maximum (PPROT=3'b111) PPROT values, even if only one is illegal. Define bins: illegal_pprot_min (000), illegal_pprot_max (111).
+5) Cross coverage: (illegal PPROT encoding) Ã— (transfer type: read/write) Ã— (PSLVERR assertion). Define cross bins for each combination, e.g., cross_illegal_pprot000_write_pslverr, cross_illegal_pprot000_read_pslverr, etc.
+6) Cover at least one legal PPROT encoding (bin: legal_pprot_reference) with both transfer types and check that PSLVERR is not asserted (bin: legal_pprot_no_pslverr).
+7) Cross coverage: (PPROT value) Ã— (PADDR minimum, maximum, random) for both legal and illegal encodings.",No Pass/Fail condition.,Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+pnse_pprot_inconsistent_combination_access,Error and Negative Tests,"Drive APB transactions with inconsistent or undefined PNSE and PPROT[1] combinations (e.g., when PNSE is present but PPROT is not, or vice versa) and verify that the DUT responds with an error (PSLVERR) as per the RME support and protection attribute specification.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles after 5 cycles of PCLK, then deassert PRESETn to bring the DUT out of reset.
+3) For each inconsistent configuration:
+   a) If PNSE is present but PPROT is not (illegal as per spec):
+      i) Issue a write transfer: Assert PSEL high, PENABLE low, set PADDR to a valid address, PWRITE high, PWDATA to a random value, PSTRB to all ones, PWAKEUP high, PNSE to any value, PPROT to default (or tie off), and proceed as normal.
+      ii) After one cycle, assert PENABLE high, keep all other signals stable.
+      iii) Wait for PREADY high or timeout.
+      iv) Deassert PSEL and PENABLE.
+   b) If PPROT is present but PNSE is not, drive PPROT[1] to both 0 and 1, PNSE tied low (or not driven), and proceed as above for both write and read transfers.
+   c) For each undefined PNSE/PPROT[1] combination (e.g., combinations not mapped in Table 3-5), issue both write and read transfers as above.
+4) Repeat for all inconsistent/undefined combinations.","1) For each transaction with inconsistent PNSE/PPROT presence or undefined combination, check that PSLVERR is asserted by the DUT during the last cycle of the transfer (when PSEL, PENABLE, and PREADY are all high).
+2) For reference, issue a transaction with both PNSE and PPROT present and a valid combination (e.g., PNSE=0, PPROT[1]=0) and check that PSLVERR is not asserted.
+3) Log all PSLVERR assertions and ensure they correspond only to the inconsistent/undefined PNSE/PPROT combinations.","Functional Coverage:
+1) Cover each inconsistent PNSE/PPROT presence scenario:
+   - PNSE present, PPROT absent (bin: pnse_present_pprot_absent)
+   - PPROT present, PNSE absent (bin: pprot_present_pnse_absent)
+   (Note: If scenario cannot be generated due to port list, drop or adapt accordingly.)
+2) Cover each undefined PNSE/PPROT[1] value combination (if any exist beyond those mapped in Table 3-5). Define bins for each undefined combination, e.g., undefined_pnse0_pprot1, undefined_pnse1_pprot0, etc.
+3) Cover both write (PWRITE=1) and read (PWRITE=0) transfer types for each inconsistent/undefined combination. Define bins: undefined_write, undefined_read per combination.
+4) Cover PSLVERR assertion (PSLVERR=1) for each inconsistent/undefined combination during the last cycle of the transfer (PSEL=1, PENABLE=1, PREADY=1). Define bins: pslverr_asserted_per_inconsistent_combination.
+5) Explicitly cover minimum (PNSE=0, PPROT[1]=0) and maximum (PNSE=1, PPROT[1]=1) values. Define bins: min_pnse_pprot1 (PNSE=0, PPROT[1]=0), max_pnse_pprot1 (PNSE=1, PPROT[1]=1).
+6) Cross coverage: (inconsistent/undefined PNSE/PPROT combination) Ã— (transfer type: read/write) Ã— (PSLVERR assertion). Define cross bins for each combination, e.g., cross_undefined_pnse1_pprot1_write_pslverr, etc.
+7) Reference bin: valid PNSE/PPROT combination (e.g., PNSE=0, PPROT[1]=0) with no PSLVERR asserted (bin: valid_combination_no_pslverr).","Pass:
+1) PSLVERR is asserted by the DUT for every transaction with inconsistent PNSE/PPROT presence or undefined PNSE/PPROT[1] combination.
+2) No PSLVERR is asserted for valid PNSE/PPROT combinations.
+Fail:
+1) PSLVERR is not asserted for any inconsistent/undefined PNSE/PPROT combination.
+2) PSLVERR is asserted for valid PNSE/PPROT combinations.
+3) Protocol is violated (e.g., PREADY not asserted, transaction hangs).",Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28)]"
+apb_transfer_with_changing_control_signals_during_access_phase,Error and Negative Tests,"Verify DUT behavior when control signals (PADDR, PPROT, PNSE, PWRITE, PWDATA, PSTRB) are illegally changed during the ACCESS phase (when PENABLE is high and PREADY is low), violating the requirement that these signals remain stable until transfer completion. The scenario covers both protocol requirements: the DUT must either ignore the changed values and use only the values present at the start of ACCESS phase, or assert PSLVERR if the protocol requires error signaling for this violation. The test applies to write transfers and checks for correct error response and protocol compliance.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles, then deassert to bring the DUT out of reset.
+3) Initiate a write transfer:
+   a) Set PADDR, PWRITE high, PSEL high, PENABLE low, PSTRB, PWDATA, PPROT, PNSE to valid values.
+   b) On next PCLK, assert PENABLE high, keep PSEL high, keep PWRITE high. Force PREADY low (by testbench, if possible, or wait for DUT to deassert PREADY).
+   c) While in ACCESS phase (PSEL and PENABLE high, PREADY low), change one or more of the following: PADDR, PPROT, PNSE, PWRITE, PWDATA, PSTRB to a new value.
+   d) Wait for PREADY to be asserted by the DUT, then deassert PSEL and PENABLE to complete the transfer.
+4) Repeat for each control signal individually and for combinations, including minimum and maximum values.","1) For each transfer where a control signal is changed during ACCESS, check that the DUT either ignores the changed values (uses only the values present at the start of ACCESS phase) or asserts PSLVERR if the protocol requires error signaling for this violation.
+2) For write transfers, compare PSLVERR to expected values and confirm it is high only for the transfer(s) where the protocol violation occurred.
+3) Log and flag any deviation from expected protocol behavior (e.g., data corruption, unexpected error signaling, or acceptance of changed values).","Functional Coverage:
+  1) Cover each control signal (PADDR, PPROT, PNSE, PWRITE, PWDATA, PSTRB) being changed during ACCESS phase (bin per signal).
+  2) Cover all combinations of two or more control signals being changed simultaneously during ACCESS phase.
+  3) Cover minimum and maximum values for PADDR and PWDATA when changed during ACCESS.
+  4) Cover bin: No control signals changed (legal case).
+  5) Cover bin: PSLVERR asserted in response to illegal change (if supported).
+  6) Cover bin: PREADY response for each illegal change.
+  7) Cross coverage: (Signal changed) Ã— (PREADY low duration: 1, 2, max cycles).
+  8) Cross coverage: (control signal changed) Ã— (PSLVERR asserted).",No Pass/Fail condition.,Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24), ('IHI0024E_amba_apb_architecture_spec.pdf', 34)]"
+pwakup_invalid_assertion_and_glitch_handling,Error and Negative Tests,"Test the APB interface behavior when PWAKEUP is either never asserted during APB activity (potential deadlock) or asserted in a glitchy/asynchronous manner (not glitch-free or not synchronous to PCLK). This scenario verifies that the DUT does not violate the protocol by responding to invalid PWAKEUP signaling, as per the specification's requirements for wake-up signaling and deadlock avoidance.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles to reset the DUT, then deassert PRESETn (set high).
+3) For each transfer type (write/read) and a range of addresses and data values:
+   a) Begin a standard APB transfer sequence:
+      i) Drive PSEL high, PADDR to a valid address, PWRITE as required, PWDATA to a random value (for write), PPROT and PNSE to valid values, PSTRB to all ones (if present), PENABLE low, PWAKEUP low.
+      ii) On next rising edge of PCLK, assert PENABLE high (data phase), keep PWAKEUP low.
+   b) For the 'never asserted' case: Keep PWAKEUP low for the entire transfer and observe PREADY for a timeout window (e.g., 100 cycles).
+   c) For the 'glitch' case: During the data phase, introduce a glitch on PWAKEUP (toggle high and low within a single PCLK cycle, or toggle asynchronously to PCLK) and observe outputs.
+4) Repeat for both write and read transfers, and for minimum and maximum PADDR values.","1) Check that PREADY is not asserted by the DUT when PWAKEUP is never asserted during APB activity, and log a deadlock condition if PREADY is not asserted within the timeout window.
+2) Check that the DUT does not respond to glitchy or asynchronous PWAKEUP assertion (i.e., PREADY is not asserted in response to a glitch).
+3) Log and flag any protocol violation, such as PREADY being asserted in response to a glitch or during deadlock, or any unexpected change in PRDATA or PSLVERR.
+4) Confirm that no data is transferred (no PRDATA or PSLVERR change) while PWAKEUP remains low or is glitchy.","Functional Coverage:
+  - Cover bin: 'pwakup_never_asserted' (PWAKEUP held low for entire transfer).
+  - Cover bin: 'pwakup_glitch' (PWAKEUP toggled within a single PCLK cycle or asynchronously).
+  - Cover bin: 'write_transfer_deadlock' (write transfer attempted with PWAKEUP low, PREADY never asserted).
+  - Cover bin: 'read_transfer_deadlock' (read transfer attempted with PWAKEUP low, PREADY never asserted).
+  - Cover bin: 'write_transfer_with_pwakup_glitch' (write transfer attempted with PWAKEUP glitch).
+  - Cover bin: 'read_transfer_with_pwakup_glitch' (read transfer attempted with PWAKEUP glitch).
+  - Cover bin: 'address_min' and 'address_max' (minimum and maximum PADDR values used in both scenarios).
+  - Cross coverage: (transfer_type: write/read) Ã— (PWAKEUP=0 or glitch) Ã— (PREADY response).
+  - Cross coverage: (PADDR min/max) Ã— (PWAKEUP=0 or glitch) Ã— (PREADY response).",No Pass/Fail condition.,Wake-up Signaling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 29)]"
+APB Read Transfer at Address and Data Boundaries with Signal Stability and Immediate Completion,Corner Tests,"Verify APB read transfer protocol compliance at the boundary of address and data width, using minimum and maximum legal values for PADDR and observing PRDATA at its minimum and maximum values. Additionally, verify correct APB state machine transitions and signal stability for read transfers, including the case where PREADY is asserted immediately (no wait states). Ensure all signals required to be stable remain unchanged throughout the transfer, and that protocol requirements for signal values and timing are met.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high).
+3) For each of the following PADDR values: minimum (0x00000000) and maximum (e.g., 0xFFFFFFFF for 32-bit address), perform:
+   a) Set PADDR to the test value.
+   b) Set PPROT, PNSE, PSTRB to their minimum legal values (all zeros).
+   c) Assert PSEL high, set PWRITE low, and drive PWAKEUP as required (low for minimum case).
+   d) Hold these values stable.
+   e) On the next rising edge of PCLK, assert PENABLE high (enter ACCESS phase).
+   f) For the minimum address case, ensure PREADY is asserted immediately (no wait states). For the maximum address case, allow PREADY to be asserted as per DUT behavior.
+   g) When PREADY is high, capture PRDATA and PSLVERR outputs at transfer completion.
+   h) Deassert PENABLE and PSEL after transfer completion.
+4) Log all input and output signal values throughout the transfer.
+5) Repeat for both minimum and maximum PADDR values.","1) For each read, log PRDATA and confirm that the value is valid (matches expected value if memory is pre-initialized or is within legal data range).
+2) Confirm that PSTRB is all zeros during read, as required by the protocol.
+3) Confirm that PRDATA and PSLVERR are only sampled when PREADY is high and PWRITE is low.
+4) Check that all input signals (PADDR, PPROT, PNSE, PSTRB, PWRITE, PSEL, PENABLE, PWAKEUP) remain stable from the start of the ACCESS phase until PREADY is high.
+5) Confirm that the read transfer completes only when PREADY is observed high.
+6) Optionally, compare PRDATA to a golden reference if available.","Functional Coverage:
+1) Cover bin: PADDR at minimum value (0x00000000) and maximum value (e.g., 0xFFFFFFFF) during read transfer.
+2) Cover bin: PRDATA observed at minimum (0x00000000) and maximum (0xFFFFFFFF) values.
+3) Cover bin: PSTRB all zeros during read transfer.
+4) Cover bin: PPROT, PNSE at minimum value during read transfer.
+5) Cover bin: PWRITE low (read transfer).
+6) Cover bin: PREADY asserted immediately (no wait states).
+7) Cover bin: PWAKEUP low during the transfer.
+8) Cross coverage: (PADDR min/max) x (PRDATA min/max) x (PREADY immediate/no wait).
+9) Cross coverage bin for (PADDR=min, PPROT=min, PNSE=min, PSTRB=min, PREADY immediate).",No Pass/Fail condition.,APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 34)]"
+APB Write Transfer with Sparse and Full Byte Lane Activation (PSTRB Corner and Boundary Case),Corner Tests,"Verify correct APB protocol compliance, state machine transitions, and data integrity for write transfers with PSTRB covering all legal values: single byte lane activation (sparse write), all byte lanes active (full write), and all bits LOW (no write). Confirm correct mapping of PSTRB to PWDATA, signal stability during ACCESS phase, and correct handling of PSTRB during read transfers (all bits LOW). Test at minimum and maximum legal addresses and with minimum and maximum data values.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high).
+3) For each byte lane n (0 to DATA_WIDTH/8 - 1):
+   a) Issue a write transfer to a legal aligned address (e.g., PADDR=0x100*n, 0x0000, 0xFFFF):
+      i) Set PWRITE high, PSEL high, PENABLE low.
+      ii) Set PWDATA so only byte lane n is non-zero (e.g., 0xFF or 0x00 in lane n, rest zero).
+      iii) Set PSTRB so only bit n is high (others low).
+      iv) Set PPROT and PNSE to legal values.
+      v) On next PCLK, assert PENABLE high (ACCESS phase), keep all signals stable.
+      vi) Wait for PREADY high, then deassert PSEL and PENABLE.
+   b) Repeat for PSTRB all bits HIGH (full write, PWDATA=0xFF...FF and 0x00...00).
+   c) Repeat for PSTRB all bits LOW (no write, PWDATA arbitrary).
+4) For each address and PSTRB pattern, perform a read transfer:
+   a) Set PADDR to the address used above.
+   b) Set PWRITE low, PSEL high, PENABLE low, PSTRB all bits LOW.
+   c) On next PCLK, assert PENABLE high, keep all signals stable.
+   d) Wait for PREADY high, then deassert PSEL and PENABLE, capture PRDATA.
+5) Log all input and output signal values throughout the transfer.
+6) Repeat for minimum and maximum address boundaries.","1) After each write, perform a read to the same address and compare PRDATA to expected value: only the targeted byte lane(s) should match the written value, others remain unchanged (if initial value is known).
+2) Confirm that PSTRB has only one bit set for sparse writes, all bits set for full writes, and all bits LOW for no-write and all read transfers.
+3) Confirm that PWDATA matches the expected pattern for the targeted byte lane(s).
+4) Explicitly check that no write occurs when PSTRB is all bits LOW.
+5) Confirm that all input signals required to be stable remain unchanged during the ACCESS phase until PREADY is high.
+6) Confirm that the write transfer completes only when PREADY is observed high.
+7) Confirm PSLVERR is not asserted during legal accesses.
+8) Confirm PREADY is asserted only during valid data phase (PSEL & PENABLE).","Functional Coverage:
+1) Cover bin: Each individual PSTRB bit (from 0 to (DATA_WIDTH/8)-1) asserted during a write transfer (sparse write).
+2) Cover bin: PSTRB all bits HIGH (full write).
+3) Cover bin: PSTRB all bits LOW (no write).
+4) Cover bin: PSTRB all bits LOW during read transfers.
+5) Cover bin: PADDR at minimum and maximum values.
+6) Cover bin: PWDATA with only one byte lane non-zero for each lane, and all lanes 0xFF/0x00.
+7) Cross coverage: (PSTRB value) x (PWDATA value) x (PADDR value).
+8) Cover bin: Readback after each write matches expected pattern for each lane and PSTRB pattern.
+9) Cover PSLVERR=0 and PREADY=1 at completion of each transfer.",No Pass/Fail condition.,Write Strobe Functionality Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 17), ('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 22), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 34), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+Protection Attribute Stability During Extended Wait States,Corner Tests,"Verify that PPROT and PNSE remain stable and valid throughout extended wait states (PREADY held low for multiple cycles) during both read and write transactions, as required by protocol during the ACCESS phase.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high).
+3) For a selected legal value of PADDR (e.g., 0x1000), and for each legal combination of PPROT (e.g., 0b101, 0b010) and PNSE (0,1):
+   a) Issue a write transfer:
+      - Set PSEL high, PADDR, PPROT, PNSE, PWRITE high, PWDATA to a known value, PSTRB to all ones.
+      - After one cycle, assert PENABLE high.
+      - Hold PREADY low for 10 cycles (simulated by testbench waiting for DUT to assert PREADY).
+      - After PREADY is observed high, deassert PSEL and PENABLE.
+   b) Issue a read transfer with the same PADDR, PPROT, PNSE:
+      - Set PSEL high, PADDR, PPROT, PNSE, PWRITE low.
+      - After one cycle, assert PENABLE high.
+      - Hold PREADY low for 10 cycles (simulated by testbench waiting for DUT to assert PREADY).
+      - After PREADY is observed high, deassert PSEL and PENABLE.","1) During each transfer, monitor and log the values of PPROT and PNSE at every PCLK rising edge from the start of SETUP through all ACCESS cycles until PREADY is high.
+2) After transfer completion, check that PPROT and PNSE were stable and did not change during the entire ACCESS phase (from assertion of PENABLE until PREADY high).
+3) For write, perform a read-back and compare PRDATA to the written value to confirm data integrity.
+4) Confirm PSLVERR is not asserted during any transfer.","Functional Coverage:
+1) Coverpoint on PPROT: 2 bins, one for each value exercised in this scenario (e.g., 0b101, 0b010).
+2) Coverpoint on PNSE: 2 bins, one for each value (0, 1).
+3) Coverpoint on PADDR: 2 bins, one for minimum (0x00000000) and one for maximum (0xFFFFFFFF) legal values (ensure at least one combination exercises each).
+4) Coverpoint on PWRITE: 2 bins, one for write (1) and one for read (0) accesses.
+5) Coverpoint on PREADY wait state duration: 1 bin for exactly 10 cycles of PREADY held low during ACCESS phase.
+6) Cross-coverage of (PWRITE, PPROT, PNSE, PREADY wait duration): 8 bins, covering all combinations of:
+   - PWRITE: read, write
+   - PPROT: each value used (0b101, 0b010)
+   - PNSE: 0, 1
+   - PREADY wait duration: 10 cycles
+7) Coverpoint on PSLVERR: 1 bin, PSLVERR always low during all accesses in this scenario.","Pass:
+1) PPROT and PNSE remain stable and valid throughout the ACCESS phase for all cycles until PREADY is high.
+2) For write, PRDATA matches the written PWDATA on subsequent read.
+3) PSLVERR is never asserted during any transfer.
+Fail:
+1) Any change in PPROT or PNSE during ACCESS phase.
+2) PSLVERR is asserted during any transfer.
+3) Data mismatch on read-back after write.
+4) Any protocol violation (e.g., missing PREADY, incorrect timing of outputs).",Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28)]"
+APB Transfer with PWAKEUP Edge Timing (Wakeup Signal Corner Case),Corner Tests,"Verify APB transfer protocol compliance when PWAKEUP is asserted at the earliest, latest, and during the transfer, ensuring correct interaction with PREADY and transfer completion.","1) Drive PCLK continuously throughout the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high).
+3) For each timing case:
+   a) Assert PWAKEUP before PSEL is asserted (earliest case).
+   b) Assert PWAKEUP during the transfer, after PSEL is asserted but before PREADY is high (mid-transfer case).
+   c) Assert PWAKEUP after PREADY is high (latest case).
+4) For each case, initiate a write or read transfer as per protocol:
+   a) On a rising edge of PCLK, drive PSEL high, set PADDR, PWRITE, PWDATA, PSTRB, PPROT, PNSE as required, hold PENABLE low (setup phase).
+   b) On the next rising edge, assert PENABLE high (access phase), keep all other signals stable.
+   c) Wait for PREADY to be asserted high by the DUT.
+   d) Deassert PSEL and PENABLE on the next cycle to complete the transfer.
+5) Deassert PWAKEUP after the transfer completes.","1) For each timing case, confirm that the transfer completes only after both PWAKEUP and PREADY are asserted (if DUT is designed to wait for PWAKEUP).
+2) Confirm that no deadlock occurs (transfer always completes).
+3) Log the timing of PWAKEUP assertion relative to PSEL and PREADY for each case.","Functional Coverage:
+1) Cover bin: PWAKEUP asserted before PSEL (earliest case).
+2) Cover bin: PWAKEUP asserted during transfer (mid-transfer case).
+3) Cover bin: PWAKEUP asserted after PREADY (latest case).
+4) Cross coverage: (PWAKEUP timing case) x (PWRITE=0/1).
+5) Cover bin: PADDR at minimum and maximum values with each PWAKEUP timing case.","Pass:
+1) Transfer completes successfully in all PWAKEUP timing cases.
+2) No deadlock occurs.
+Fail:
+1) Transfer does not complete (deadlock).
+2) Protocol violation observed (e.g., transfer completes before PWAKEUP is asserted if DUT is designed to wait for PWAKEUP).",APB Transfer Protocol Compliance,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23)]"
+APB Transfer with Minimum and Maximum PWAKEUP Activity (Wake-up Signal Corner Case),Corner Tests,"Verify correct handling of PWAKEUP signal for both minimum (never asserted) and maximum (asserted every cycle) legal activity, and confirm correct operation of APB transfers in both cases.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (PRESETn high).
+3) For minimum activity case: keep PWAKEUP low for the entire test, perform a sequence of write and read transfers as in previous scenarios.
+4) For maximum activity case: assert PWAKEUP high every cycle for the entire test, perform a sequence of write and read transfers as in previous scenarios.
+5) For each transfer, use legal values for all other input ports, and check PRDATA, PREADY, PSLVERR as in previous scenarios.","1) After each read, compare PRDATA with the value previously written to the same PADDR.
+2) Confirm PSLVERR is not asserted during any transfer.
+3) Confirm PREADY is asserted only during valid data phase (PSEL & PENABLE).
+4) Confirm that APB transfers complete correctly regardless of PWAKEUP activity.","Functional Coverage:
+1) Cover PWAKEUP held low for entire test (minimum activity). Bin: PWAKEUP_MIN.
+2) Cover PWAKEUP held high for entire test (maximum activity). Bin: PWAKEUP_MAX.
+3) Cover cross of PWAKEUP activity with write/read transfers. Bins: (PWAKEUP_MIN, WRITE), (PWAKEUP_MIN, READ), (PWAKEUP_MAX, WRITE), (PWAKEUP_MAX, READ).
+4) Cover PRDATA observed for both PWAKEUP activity cases. Bins: PRDATA_PWAKEUP_MIN, PRDATA_PWAKEUP_MAX.
+5) Cover PSLVERR=0 and PREADY=1 at completion of each transfer. Bins: PSLVERR_OK, PREADY_OK.","Pass:
+1) PRDATA matches expected value for both PWAKEUP activity cases.
+2) PSLVERR not asserted during any transfer.
+3) PREADY asserted as expected.
+4) APB transfers complete correctly in both cases.
+Fail:
+1) Any mismatch between PRDATA and expected value.
+2) PSLVERR asserted during any transfer.
+3) PREADY not asserted as expected.
+4) Test passes vacuously (no transactions occurred).",Signal Validity Rules Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+APB Back-to-Back Transfers with Alternating Minimum and Maximum Values,Corner Tests,"Verify correct APB state machine transitions and signal stability when performing back-to-back transfers (write followed by read) with alternating minimum and maximum legal values for address, data, and sideband signals. Ensure that transitions between SETUP and ACCESS states are handled correctly and that signals required to be stable remain unchanged during each ACCESS phase. Only top-level ports from the provided list are referenced.","1) Drive PCLK continuously for the duration of the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high).
+3) After reset, perform the following sequence:
+   a) Issue a write transfer to PADDR=minimum (0x00000000), PWDATA=minimum (0x00000000), PPROT, PNSE, PSTRB=minimum, PWRITE=1, PSEL=1, PWAKEUP=1. Hold values stable, assert PENABLE, wait for PREADY high, then deassert PENABLE and PSEL.
+   b) Immediately issue a read transfer to PADDR=maximum (0xFFFFFFFF), PPROT, PNSE, PSTRB=maximum, PWRITE=0, PSEL=1, PWAKEUP=1. Hold values stable, assert PENABLE, wait for PREADY high, then deassert PENABLE and PSEL.
+   c) Repeat steps a) and b) for at least two cycles to ensure back-to-back operation.
+4) Log all input and output signal values throughout the transfers.","1) For each transfer, check that all input signals required to be stable remain unchanged during the ACCESS phase until PREADY is high.
+2) For the write-read pair, after the read transfer, compare PRDATA with the expected value if the address matches a previously written value (if applicable).
+3) Confirm that each transfer completes only when PREADY is observed high.","Functional Coverage:
+1) Cover bin for back-to-back write and read transfers.
+2) Cover bin for PADDR at minimum and maximum values in consecutive transfers.
+3) Cover bin for PWDATA at minimum and maximum values in consecutive transfers.
+4) Cover bin for PPROT, PNSE, PSTRB at minimum and maximum values in consecutive transfers.
+5) Cover bin for PWAKEUP asserted during back-to-back transfers.
+6) Cross coverage bin for (transfer type: write/read) x (PADDR: min/max) x (PWDATA: min/max) x (PSTRB: min/max).","Pass:
+1) All input signals required to be stable remain unchanged during each ACCESS phase and until PREADY is high.
+2) Each transfer completes only when PREADY is high.
+3) For write-read pairs to the same address, PRDATA matches the previously written PWDATA.
+Fail:
+1) Any input signal required to be stable changes during the ACCESS phase.
+2) Any transfer completes before PREADY is high.
+3) PRDATA does not match expected value for write-read pairs.",APB State Machine and Signal Stability Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 34)]"
+APB Protection and Realm Attribute Boundary and Combination Test,Corner Tests,"Verify correct handling and APB protocol compliance for all legal combinations of PPROT[2:0] and PNSE, including minimum and maximum boundary values, during both read and write transactions at minimum and maximum legal PADDR addresses. Confirm correct mapping to Secure, Non-secure, Root, and Realm address spaces as per the specification, signal validity, and data integrity for each case.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high).
+3) For each combination of PPROT[2:0] (000, 001, 010, 011, 100, 101, 110, 111) and PNSE (0, 1):
+   a) For each boundary address (PADDR=0x00000000 and PADDR=0xFFFFFFFF):
+      i) Issue a write transfer:
+         - Set PSEL high, PADDR to boundary value, PPROT and PNSE to current combination, PWRITE high, PWDATA to 0x00000000 (min) and 0xFFFFFFFF (max), PSTRB to all ones, PENABLE high after one cycle.
+         - Wait for PREADY high, then deassert PSEL and PENABLE.
+      ii) Issue a read transfer:
+         - Set PSEL high, PADDR to boundary value, PPROT and PNSE to current combination, PWRITE low, PENABLE high after one cycle.
+         - Wait for PREADY high, then deassert PSEL and PENABLE.
+4) Optionally, for each combination, perform a write/read sequence to a mid-range address (e.g., PADDR=0x3000) with PWDATA=0x12345678 to confirm data integrity.
+5) Repeat for all combinations of PPROT and PNSE at both min and max PADDR, for both min and max PWDATA (write) and observe PRDATA (read).","1) After each read operation, compare PRDATA to the value previously written to the same PADDR, PPROT, and PNSE combination.
+2) Log all observed PRDATA values and verify against expected values for each protection attribute combination.
+3) Confirm that PSLVERR is not asserted during any transfer in this scenario.
+4) Confirm PREADY is asserted only during valid data phase (PSEL & PENABLE).
+5) Confirm that only legal combinations of PPROT[1] and PNSE are used (as per Table 3-5).
+6) For each transfer, log the PPROT[1] and PNSE values used and confirm the transfer completes as expected (no protocol violation, correct PREADY behavior).","Functional Coverage:
+1) Coverpoint on PPROT: 8 bins, one for each legal value (0b000 to 0b111), with explicit bins for min (0b000) and max (0b111).
+2) Coverpoint on PNSE: 2 bins, one for each legal value (0, 1).
+3) Cross-coverage of (PNSE, PPROT[1]): 4 bins, one for each legal combination as per Table 3-5: (Secure, Non-secure, Root, Realm).
+4) Coverpoint on PADDR: 2 bins, one for minimum (0x00000000) and one for maximum (0xFFFFFFFF) legal values.
+5) Coverpoint on PWDATA (write): 2 bins, one for minimum (0x00000000) and one for maximum (0xFFFFFFFF) legal values.
+6) Cross-coverage of (PADDR, PPROT, PNSE, PWDATA, PWRITE): 32 bins, covering all combinations of PADDR (min, max), PPROT (min, max), PNSE (0, 1), PWDATA (min, max), and PWRITE (1 for write, 0 for read).
+7) Cover PRDATA observed for each PPROT/PNSE combination.
+8) Cover PSLVERR=0 and PREADY=1 at completion of each transfer.
+9) Test passes vacuously (no transactions occurred) is not allowed.",No Pass/Fail condition.,Protection and Security Attribute Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 27), ('IHI0024E_amba_apb_architecture_spec.pdf', 28), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+APB Transfer Extension and Signal Validity at Address/Data Boundaries,Corner Tests,"Verify correct handling of APB protocol wait state extension and signal validity during both write and read transfers at the minimum and maximum legal values of PADDR and PWDATA/PRDATA. Ensure protocol compliance at address and data boundaries, including correct handling of PSTRB, PPROT, PNSE, PWAKEUP, and PSLVERR, and confirm data integrity for all byte lanes and protocol-compliant stimulus.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 PCLK cycles after power-up, then deassert (PRESETn high) to release reset.
+3) For each of the following address/data combinations:
+   a) PADDR = minimum legal value (e.g., 0x0000), PWDATA = minimum legal value (e.g., 0x00000000) for write.
+   b) PADDR = maximum legal value (e.g., 0xFFFFFFFF), PWDATA = maximum legal value (e.g., 0xFFFFFFFF) for write.
+   c) For read, PADDR = min/max, PRDATA observed.
+4) For each combination, perform:
+   a) Assert PSEL high, set PADDR, PWRITE, PWDATA (for write), PSTRB (all ones for write, all zeros for read), PPROT, PNSE, PWAKEUP as required.
+   b) Assert PENABLE high on the next PCLK rising edge.
+   c) Hold PREADY low for a random legal number of cycles (between 1 and N), then assert PREADY high to complete the transfer.
+   d) For write: deassert PSEL and PENABLE after PREADY high. For read: capture PRDATA when PREADY is high, then deassert PSEL and PENABLE.
+5) For write, follow up with a read from the same address to verify data integrity.
+6) Repeat for both write and read operations at both minimum and maximum address/data values.","1) For each write followed by read, compare PRDATA to the previously written PWDATA at the same PADDR.
+2) Confirm that during wait state extension (PREADY low), all input signals remain stable and valid.
+3) Confirm that the transfer completes only after PREADY is asserted high.
+4) Confirm PSLVERR is not asserted unless an error is expected for the address/data.
+5) Log the address, data, PSTRB, PPROT, PNSE, PWAKEUP, and number of wait state cycles for each transfer.
+6) Confirm that PRDATA is only checked for validity when PSEL, PENABLE, and PREADY are all high and PWRITE is low.","Functional Coverage:
+1) Coverpoint: PADDR value during transfer extension
+   - Bin: PADDR at minimum legal value (e.g., 0x0000)
+   - Bin: PADDR at maximum legal value (e.g., 0xFFFFFFFF)
+2) Coverpoint: PWDATA value during write transfer extension
+   - Bin: PWDATA at minimum legal value (e.g., 0x00000000)
+   - Bin: PWDATA at maximum legal value (e.g., 0xFFFFFFFF)
+3) Coverpoint: PRDATA value observed during read transfer extension
+   - Bin: PRDATA at minimum legal value (e.g., 0x00000000)
+   - Bin: PRDATA at maximum legal value (e.g., 0xFFFFFFFF)
+4) Coverpoint: PREADY extension cycles
+   - Bin: PREADY held low for minimum extension (1 cycle)
+   - Bin: PREADY held low for maximum extension (N cycles)
+5) Coverpoint: PSLVERR response at address/data boundaries
+   - Bin: PSLVERR asserted (PSLVERR=1)
+   - Bin: PSLVERR not asserted (PSLVERR=0)
+6) Coverpoint: Transfer type at address/data boundaries with wait state extension
+   - Bin: Write transfer (PWRITE=1)
+   - Bin: Read transfer (PWRITE=0)
+7) Cross coverage:
+   - (PADDR: min/max) x (PWDATA: min/max for write) x (PREADY extension: min/max cycles)
+   - (PADDR: min/max) x (PRDATA: min/max for read) x (PREADY extension: min/max cycles)
+   - (Transfer type: read/write) x (PADDR: min/max) x (PWDATA: min/max for write) x (PREADY extension: min/max cycles)
+8) Coverpoint: PSTRB value (for write transfers)
+   - Bin: PSTRB at minimum value (all bits low)
+   - Bin: PSTRB at maximum value (all bits high)
+9) Coverpoint: PPROT and PNSE combinations at address/data boundaries
+   - Bin: PPROT at minimum (0b000), maximum (0b111)
+   - Bin: PNSE at 0 and 1
+   - Cross: (PPROT: min/max) x (PNSE: 0/1)
+10) Coverpoint: PWAKEUP assertion at address/data boundaries
+   - Bin: PWAKEUP asserted during transfer
+   - Bin: PWAKEUP not asserted during transfer
+11) Cover all byte lanes active on PSTRB (all ones) and all byte lanes inactive (all zeros) during read.
+12) Cover PSLVERR=0 and PREADY=1 at completion of each transfer.",No Pass/Fail condition.,Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+"APB Transfer with Maximum Wait State Extension and Signal Stability (Read/Write, Data/Address Boundaries)",Corner Tests,"Verify correct APB protocol handling when the DUT extends both write and read transfers by holding PREADY low for the maximum legal number of cycles. Ensure all required input signals remain stable and valid throughout the extended ACCESS phase, and that data integrity and protocol compliance are maintained for both minimum and maximum legal values of PADDR, PWDATA, and PRDATA. The scenario covers both write and read operations, exercising data/address boundaries, and checks for correct PSLVERR response and signal validity.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 PCLK cycles after power-up, then deassert (PRESETn high) to release reset.
+3) For each of the following operations (write and read):
+   a) Issue a transfer by asserting PSEL high, setting PADDR to a legal value (minimum and maximum), and setting PWRITE and PWDATA appropriately (PWRITE=1 for write, PWRITE=0 for read; PWDATA only for write). Set PSTRB, PPROT, PNSE, and PWAKEUP to legal values (minimum and maximum where applicable).
+   b) Assert PENABLE high on the next PCLK rising edge to enter the ACCESS phase.
+   c) Hold PREADY low for N cycles (where N is the maximum legal extension supported by the DUT, e.g., 16 cycles), keeping all input signals (PADDR, PWRITE, PWDATA, PSTRB, PPROT, PNSE, PWAKEUP) stable and valid throughout.
+   d) After N cycles, drive PREADY high to complete the transfer.
+   e) For write: deassert PSEL and PENABLE after PREADY high. For read: capture PRDATA when PREADY is high, then deassert PSEL and PENABLE.
+4) Repeat for both minimum and maximum legal values of PADDR, PWDATA (for write), and PRDATA (for read, as observed).
+5) Repeat for both write and read operations.","1) For write transfers: After PREADY is asserted high, confirm that the transfer completes and the DUT acknowledges the write (if observable via PRDATA or PSLVERR in subsequent read or status check).
+2) For read transfers: After PREADY is asserted high, capture PRDATA and compare it to the expected value (if previously written).
+3) Confirm that during the entire wait state extension (while PREADY is low), all input signals (PADDR, PWRITE, PWDATA, PSTRB, PPROT, PNSE, PWAKEUP) remain stable and valid.
+4) Confirm that no PSLVERR is asserted unless an error is expected for the given address/data.
+5) Log the number of cycles PREADY was held low and confirm it matches the intended extension.
+6) Confirm that the transfer completes only after PREADY is high and that no protocol violations occur.","Functional Coverage:
+1) Coverpoint: PREADY extension cycles
+   - Bin: PREADY held low for minimum extension (1 cycle)
+   - Bin: PREADY held low for maximum extension (N cycles)
+2) Coverpoint: Transfer type
+   - Bin: Write transfer (PWRITE=1)
+   - Bin: Read transfer (PWRITE=0)
+3) Coverpoint: PADDR value
+   - Bin: PADDR at minimum legal value
+   - Bin: PADDR at maximum legal value
+4) Coverpoint: PWDATA value (for write transfers)
+   - Bin: PWDATA at minimum legal value
+   - Bin: PWDATA at maximum legal value
+5) Coverpoint: PRDATA value (for read transfers)
+   - Bin: PRDATA at minimum legal value
+   - Bin: PRDATA at maximum legal value
+6) Coverpoint: PSLVERR response
+   - Bin: PSLVERR asserted (PSLVERR=1) after wait state extension
+   - Bin: PSLVERR not asserted (PSLVERR=0) after wait state extension
+7) Cross coverage:
+   - (Transfer type: read/write) x (PREADY extension: min/max) x (PADDR: min/max) x (PWDATA: min/max for write)
+   - (Transfer type: read) x (PREADY extension: min/max) x (PADDR: min/max) x (PRDATA: min/max for read)
+8) Coverpoint: Signal stability during wait state extension
+   - Bin: All input signals remain stable and valid throughout the PREADY low period (checked via assertion coverage).
+9) Coverpoint: PSTRB value (for write transfers)
+   - Bin: PSTRB at minimum value (all bits low)
+   - Bin: PSTRB at maximum value (all bits high)
+10) Coverpoint: PPROT and PNSE combinations
+   - Bin: PPROT at minimum (0b000), maximum (0b111)
+   - Bin: PNSE at 0 and 1
+   - Cross: (PPROT: min/max) x (PNSE: 0/1)
+11) Coverpoint: PWAKEUP assertion
+   - Bin: PWAKEUP asserted during transfer
+   - Bin: PWAKEUP not asserted during transfer",No Pass/Fail condition.,Wait State and Transfer Extension Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 20), ('IHI0024E_amba_apb_architecture_spec.pdf', 21), ('IHI0024E_amba_apb_architecture_spec.pdf', 23), ('IHI0024E_amba_apb_architecture_spec.pdf', 24), ('IHI0024E_amba_apb_architecture_spec.pdf', 34), ('IHI0024E_amba_apb_architecture_spec.pdf', 41), ('IHI0024E_amba_apb_architecture_spec.pdf', 42)]"
+"Comprehensive PWAKEUP Assertion and Duration Verification (Minimum, Maximum, Read, Write, and Wait States)",Corner Tests,"Verify the PWAKEUP signal behavior across all legal APB transfer scenarios, including minimum and maximum assertion durations, both write and read transfers, and transfers with wait states (PREADY extension). Ensure PWAKEUP is asserted and deasserted according to the specification, with correct alignment to APB protocol phases, and no glitches or illegal assertions.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 cycles to reset the DUT, then deassert PRESETn (set high).
+3) Wait 5 cycles after reset deassertion.
+4) Execute the following sub-scenarios:
+   a) Minimum Assertion Test: Initiate a single APB write transfer with PWAKEUP asserted for exactly one PCLK cycle during the data phase (PENABLE high), then deasserted.
+   b) Maximum Flooding Test: Initiate a burst of N back-to-back APB write transfers (N >= 16), with PWAKEUP asserted continuously from the first to the last transfer, then deasserted after the burst.
+   c) Read Transfer Test: Initiate a single APB read transfer with PWAKEUP asserted for exactly one PCLK cycle during the data phase (PENABLE high), then deasserted.
+   d) Wait State Extension Test: Initiate a single APB write transfer where PREADY is held low for M cycles (M >= 3), with PWAKEUP asserted for the entire duration (M+1 cycles), then deasserted after PREADY goes high.
+5) For each sub-scenario, use legal, protocol-compliant values for all APB signals (PADDR, PWDATA, PPROT, PNSE, PSTRB, etc.), and ensure unique values where required.
+6) Wait 5 cycles after each sub-scenario, then proceed to the next or end the test.","1) Check that PWAKEUP is asserted for the correct duration in each scenario: exactly one cycle for minimum and read, continuously for the burst, and for M+1 cycles during wait states.
+2) Check that PWAKEUP is only asserted during legal APB transfer windows (aligned with PENABLE high and active transfer), and not before or after.
+3) Check that PWAKEUP is not deasserted or glitched during required assertion periods (especially during bursts and wait states).
+4) For each transfer, check that APB protocol completes successfully (PREADY observed high, PSLVERR low).
+5) Log the cycles when PWAKEUP is asserted and confirm alignment with APB transfer phases and protocol.
+6) Confirm that all legal combinations of PWRITE (0 and 1), PADDR, and PWDATA are exercised as per the scenario.","Functional Coverage:
+1) Cover bins for PWAKEUP asserted for minimum (1 cycle), maximum (N cycles), and extended (M+1 cycles) durations.
+2) Cover bins for PWAKEUP assertion during both write (PWRITE=1) and read (PWRITE=0) transfers.
+3) Cover bins for PWAKEUP deasserted before and after transfers, and never asserted outside legal windows.
+4) Cover bins for PWAKEUP assertion aligned with PENABLE high, PREADY transitions, and for all combinations of wait states.
+5) Cross coverage: (PWAKEUP assertion duration) x (PWRITE value) x (PREADY) x (number of transfers/wait states).
+6) Cover bins for minimum and maximum legal PADDR and PWDATA values, and for unique values in bursts.
+7) Cover bins for PWAKEUP never glitching or deasserting during required assertion periods.",No Pass/Fail condition.,Wake-up Signaling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 29)]"
+"Comprehensive PSLVERR Error Response Verification Across Address, Data, Protection, Security, and Wait State Corners",Corner Tests,"Verify that PSLVERR is correctly asserted only during valid transfer completion cycles (PSEL, PENABLE, PREADY all high) across all relevant protocol corners: minimum and maximum legal PADDR values, all supported PWDATA widths and values, all legal PPROT and PNSE combinations, and after maximum legal wait state extension using PREADY low, for both read and write accesses. This scenario ensures robust error response handling at all protocol boundaries and under all legal input conditions.","1) Continuously drive PCLK for the duration of the test.
+2) Assert PRESETn low for 8 cycles after 5-10 PCLK cycles, then deassert PRESETn (set high) to release reset.
+3) For each supported data width (e.g., 8, 16, 32 bits):
+   a) For minimum and maximum legal PADDR values (e.g., 0x0000 and 0xFFFFFFFF):
+      i) For each legal combination of PPROT (0b000 to 0b111) and PNSE (0 or 1):
+         - For both write (PWRITE=1) and read (PWRITE=0) transfers:
+            * For minimum and maximum legal PWDATA values (for write) and for both minimum and maximum legal PPROT/PNSE values (for read):
+               - Issue a transfer: Set PSEL high, PADDR, PWRITE, PWDATA, PSTRB, PPROT, PNSE as required, PENABLE high in the next cycle.
+               - For wait state testing, hold PREADY low for the maximum legal number of cycles (e.g., 16 cycles), keeping all other signals stable as per protocol.
+               - On the final cycle, set PREADY high to complete the transfer, and expect PSLVERR high on this cycle.
+4) For each transfer, ensure all other input ports are driven with protocol-compliant values.","1) For each transfer, check that PSLVERR is asserted only on the cycle where PSEL, PENABLE, and PREADY are all high (transfer completion), including after maximum wait states.
+2) Confirm that PSLVERR is not asserted on any other cycle, including during wait state cycles (PREADY low).
+3) Log and compare the observed PSLVERR behavior for all exercised combinations of PADDR, PWDATA width and value, PPROT, PNSE, and wait state count, for both read and write accesses.
+4) For write accesses, confirm that PSLVERR assertion does not prevent PREADY from being asserted and the transfer from completing.","Functional Coverage:
+1) Cover bins for PSLVERR asserted at minimum and maximum PADDR values for both read and write accesses.
+2) Cover bins for PSLVERR asserted at transfer completion for each supported PWDATA width (e.g., 8, 16, 32 bits) and for minimum and maximum PWDATA values (write).
+3) Cover bins for PSLVERR asserted at transfer completion for each legal PPROT (0b000 to 0b111) and PNSE (0/1) combination, for both read and write accesses.
+4) Cover bins for PSLVERR asserted after maximum wait states (e.g., 16 cycles of PREADY low) for both read and write accesses.
+5) Cross coverage: (PADDR=min/max) x (PWDATA width/value=min/max) x (PPROT=all) x (PNSE=0/1) x (PWRITE=0/1) x (wait state count=0/max) x (PSLVERR asserted at completion).
+6) Cover bin: PSLVERR not asserted on any cycle except when PSEL, PENABLE, PREADY are all high.",No Pass/Fail condition.,Error Response Handling Verification,"[('IHI0024E_amba_apb_architecture_spec.pdf', 25), ('IHI0024E_amba_apb_architecture_spec.pdf', 26)]"
