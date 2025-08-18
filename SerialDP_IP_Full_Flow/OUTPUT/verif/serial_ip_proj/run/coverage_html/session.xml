@@ -1,0 +1,37 @@
+<session version="1.1" release="V-2023.12-SP1" timestp="2025-04-15 09:50:33 GMT">
+  <info>
+    <attr name="datetime" value="Tue Apr 15 09:50:34 2025
+"/>
+    <attr name="command" value="urg -dir ./coverage_data.vdb/ -report ./coverage_html"/>
+    <attr name="top_instance" value="serial_ip_tb_top"/>
+  </info>
+  <hvp>
+    <datadef>
+      <metdef name="Line" type="ratio" aggregator="average" builtin="1" />
+      <metdef name="Cond" type="ratio" aggregator="average" builtin="1" />
+      <metdef name="Toggle" type="ratio" aggregator="average" builtin="1" />
+      <metdef name="FSM" type="ratio" aggregator="average" builtin="1" />
+      <metdef name="Branch" type="ratio" aggregator="average" builtin="1" />
+      <metdef name="Group" type="percent" aggregator="average" builtin="1" />
+    </datadef>
+  </hvp>
+  <old_coverage>
+  <scope type="top" name="top">
+    <metric name="Line" value="41/42" />
+    <metric name="Cond" value="23/24" />
+    <metric name="Toggle" value="92/92" />
+    <metric name="FSM" value="8/10" />
+    <metric name="Branch" value="24/27" />
+  </scope>
+  <scope type="instance" name="top">
+  </scope>
+  <scope type="group" name="top">
+    <scope type="group" name="clk_rst_agent_pkg::clk_rst_agent_cov::cg_trans">
+    </scope>
+    <scope type="group" name="serial_agent_pkg::serial_agent_cov::cg_trans">
+    </scope>
+  </scope>
+  <scope type="assert" name="Statistics">
+  </scope>
+  </old_coverage>
+</session>

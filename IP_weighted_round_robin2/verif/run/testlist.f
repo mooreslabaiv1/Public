@@ -1,3 +1,0 @@
-weighted_round_robin_base_test
-weighted_round_robin_mid_sim_rst_test
-weighted_round_robin_basic_functionality_test

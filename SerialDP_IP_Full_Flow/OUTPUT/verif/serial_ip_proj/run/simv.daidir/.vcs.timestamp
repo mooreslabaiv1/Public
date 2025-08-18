@@ -1,0 +1,876 @@
+587      
+0 uvm_macros.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/uvm_macros.svh
+0 macros/uvm_version_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_version_defines.svh
+0 macros/snps_macros.svp
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/snps_macros.svp
+0 macros/uvm_message_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_message_defines.svh
+0 macros/uvm_phase_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_phase_defines.svh
+0 macros/uvm_object_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_object_defines.svh
+0 macros/uvm_printer_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_printer_defines.svh
+0 macros/uvm_tlm_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_tlm_defines.svh
+0 tlm1/uvm_tlm_imps.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_tlm_imps.svh
+0 macros/uvm_sequence_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_sequence_defines.svh
+0 macros/uvm_callback_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_callback_defines.svh
+0 macros/uvm_reg_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_reg_defines.svh
+0 macros/uvm_deprecated_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/macros/uvm_deprecated_defines.svh
+0 directc/uvm_directc.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/directc/uvm_directc.svh
+0 directc/uvm_seed.vh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/directc/uvm_seed.vh
+0 dpi/uvm_dpi.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/dpi/uvm_dpi.svh
+0 dpi/uvm_hdl.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/dpi/uvm_hdl.svh
+0 dpi/uvm_svcmd_dpi.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/dpi/uvm_svcmd_dpi.svh
+0 dpi/uvm_regex.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/dpi/uvm_regex.svh
+0 base/uvm_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_base.svh
+0 base/uvm_version.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_version.svh
+0 base/uvm_object_globals.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_object_globals.svh
+0 base/uvm_misc.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_misc.svh
+0 base/uvm_object.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_object.svh
+0 base/uvm_pool.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_pool.svh
+0 base/uvm_queue.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_queue.svh
+0 base/uvm_factory.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_factory.svh
+0 base/uvm_registry.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_registry.svh
+0 base/uvm_spell_chkr.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_spell_chkr.svh
+0 base/uvm_resource.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_resource.svh
+0 deprecated/uvm_resource_converter.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/deprecated/uvm_resource_converter.svh
+0 base/uvm_resource_specializations.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_resource_specializations.svh
+0 base/uvm_resource_db.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_resource_db.svh
+0 base/uvm_config_db.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_config_db.svh
+0 base/uvm_printer.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_printer.svh
+0 base/uvm_comparer.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_comparer.svh
+0 base/uvm_packer.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_packer.svh
+0 base/uvm_recorder.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_recorder.svh
+0 base/uvm_event_callback.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_event_callback.svh
+0 base/uvm_event.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_event.svh
+0 base/uvm_barrier.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_barrier.svh
+0 base/uvm_callback.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_callback.svh
+0 base/uvm_report_catcher.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_report_catcher.svh
+0 base/uvm_report_server.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_report_server.svh
+0 base/uvm_report_handler.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_report_handler.svh
+0 base/uvm_report_object.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_report_object.svh
+0 base/uvm_transaction.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_transaction.svh
+0 base/uvm_phase.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_phase.svh
+0 base/uvm_domain.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_domain.svh
+0 base/uvm_bottomup_phase.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_bottomup_phase.svh
+0 base/uvm_topdown_phase.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_topdown_phase.svh
+0 base/uvm_task_phase.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_task_phase.svh
+0 base/uvm_common_phases.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_common_phases.svh
+0 base/uvm_runtime_phases.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_runtime_phases.svh
+0 base/uvm_component.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_component.svh
+0 base/uvm_root.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_root.svh
+0 base/uvm_objection.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_objection.svh
+0 base/uvm_heartbeat.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_heartbeat.svh
+0 base/uvm_globals.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_globals.svh
+0 base/uvm_cmdline_processor.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_cmdline_processor.svh
+0 tlm1/uvm_tlm.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_tlm.svh
+0 tlm1/uvm_tlm_ifs.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_tlm_ifs.svh
+0 tlm1/uvm_sqr_ifs.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_sqr_ifs.svh
+0 base/uvm_port_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/base/uvm_port_base.svh
+0 tlm1/uvm_imps.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_imps.svh
+0 tlm1/uvm_ports.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_ports.svh
+0 tlm1/uvm_exports.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_exports.svh
+0 tlm1/uvm_analysis_port.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_analysis_port.svh
+0 tlm1/uvm_tlm_fifo_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_tlm_fifo_base.svh
+0 tlm1/uvm_tlm_fifos.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_tlm_fifos.svh
+0 tlm1/uvm_tlm_req_rsp.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_tlm_req_rsp.svh
+0 tlm1/uvm_sqr_connections.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm1/uvm_sqr_connections.svh
+0 comps/uvm_comps.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_comps.svh
+0 comps/uvm_pair.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_pair.svh
+0 comps/uvm_policies.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_policies.svh
+0 comps/uvm_in_order_comparator.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_in_order_comparator.svh
+0 comps/uvm_algorithmic_comparator.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_algorithmic_comparator.svh
+0 comps/uvm_random_stimulus.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_random_stimulus.svh
+0 comps/uvm_subscriber.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_subscriber.svh
+0 comps/uvm_monitor.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_monitor.svh
+0 comps/uvm_driver.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_driver.svh
+0 comps/uvm_push_driver.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_push_driver.svh
+0 comps/uvm_scoreboard.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_scoreboard.svh
+0 comps/uvm_agent.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_agent.svh
+0 comps/uvm_env.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_env.svh
+0 comps/uvm_test.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/comps/uvm_test.svh
+0 seq/uvm_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_seq.svh
+0 seq/uvm_sequence_item.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequence_item.svh
+0 seq/uvm_sequencer_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequencer_base.svh
+0 seq/uvm_sequencer_analysis_fifo.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequencer_analysis_fifo.svh
+0 seq/uvm_sequencer_param_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequencer_param_base.svh
+0 seq/uvm_sequencer.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequencer.svh
+0 seq/uvm_push_sequencer.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_push_sequencer.svh
+0 seq/uvm_sequence_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequence_base.svh
+0 seq/uvm_sequence.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequence.svh
+0 seq/uvm_sequence_library.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequence_library.svh
+0 seq/uvm_sequence_builtin.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/seq/uvm_sequence_builtin.svh
+0 tlm2/uvm_tlm2.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2.svh
+0 tlm2/uvm_tlm2_defines.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_defines.svh
+0 tlm2/uvm_tlm2_time.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_time.svh
+0 tlm2/uvm_tlm2_generic_payload.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_generic_payload.svh
+0 tlm2/uvm_tlm2_ifs.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_ifs.svh
+0 tlm2/uvm_tlm2_imps.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_imps.svh
+0 tlm2/uvm_tlm2_ports.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_ports.svh
+0 tlm2/uvm_tlm2_exports.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_exports.svh
+0 tlm2/uvm_tlm2_sockets_base.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_sockets_base.svh
+0 tlm2/uvm_tlm2_sockets.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/tlm2/uvm_tlm2_sockets.svh
+0 reg/uvm_reg_model.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_model.svh
+0 reg/uvm_reg_item.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_item.svh
+0 reg/uvm_reg_adapter.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_adapter.svh
+0 reg/uvm_reg_predictor.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_predictor.svh
+0 reg/uvm_reg_sequence.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_sequence.svh
+0 reg/uvm_reg_cbs.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_cbs.svh
+0 reg/uvm_reg_backdoor.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_backdoor.svh
+0 reg/uvm_reg_field.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_field.svh
+0 reg/uvm_vreg_field.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_vreg_field.svh
+0 reg/uvm_reg.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg.svh
+0 reg/uvm_reg_indirect.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_indirect.svh
+0 reg/uvm_reg_fifo.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_fifo.svh
+0 reg/uvm_reg_file.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_file.svh
+0 reg/uvm_mem_mam.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_mem_mam.svh
+0 reg/uvm_vreg.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_vreg.svh
+0 reg/uvm_mem.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_mem.svh
+0 reg/uvm_reg_map.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_map.svh
+0 reg/uvm_reg_block.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/uvm_reg_block.svh
+0 reg/sequences/uvm_reg_hw_reset_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_reg_hw_reset_seq.svh
+0 reg/sequences/uvm_reg_bit_bash_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_reg_bit_bash_seq.svh
+0 reg/sequences/uvm_mem_walk_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_mem_walk_seq.svh
+0 reg/sequences/uvm_mem_access_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_mem_access_seq.svh
+0 reg/sequences/uvm_reg_access_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_reg_access_seq.svh
+0 reg/sequences/uvm_reg_mem_shared_access_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_reg_mem_shared_access_seq.svh
+0 reg/sequences/uvm_reg_mem_built_in_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_reg_mem_built_in_seq.svh
+0 reg/sequences/uvm_reg_mem_hdl_paths_seq.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh
+0 reg/snps_uvm_reg_bank.svh
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/reg/snps_uvm_reg_bank.svh
+0 vcs/vcs_uvm_alt.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/vcs/vcs_uvm_alt.sv
+0 serial_trans_item.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_trans_item.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_trans_item.sv
+0 ../env/serial_trans_item.sv
+0 ../scoreboard/serial_trans_item.sv
+0 ../sequences/serial_trans_item.sv
+0 ../agents/serial_trans_item.sv
+0 ../tests/serial_trans_item.sv
+0 ../top/serial_trans_item.sv
+0 serial_monitor.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_monitor.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_monitor.sv
+0 ../env/serial_monitor.sv
+0 ../scoreboard/serial_monitor.sv
+0 ../sequences/serial_monitor.sv
+0 ../agents/serial_monitor.sv
+0 ../tests/serial_monitor.sv
+0 ../top/serial_monitor.sv
+0 serial_driver.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_driver.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_driver.sv
+0 ../env/serial_driver.sv
+0 ../scoreboard/serial_driver.sv
+0 ../sequences/serial_driver.sv
+0 ../agents/serial_driver.sv
+0 ../tests/serial_driver.sv
+0 ../top/serial_driver.sv
+0 serial_seqr.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_seqr.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_seqr.sv
+0 ../env/serial_seqr.sv
+0 ../scoreboard/serial_seqr.sv
+0 ../sequences/serial_seqr.sv
+0 ../agents/serial_seqr.sv
+0 ../tests/serial_seqr.sv
+0 ../top/serial_seqr.sv
+0 serial_agent_cov.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_agent_cov.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_agent_cov.sv
+0 ../env/serial_agent_cov.sv
+0 ../scoreboard/serial_agent_cov.sv
+0 ../sequences/serial_agent_cov.sv
+0 ../agents/serial_agent_cov.sv
+0 ../tests/serial_agent_cov.sv
+0 ../top/serial_agent_cov.sv
+0 serial_agent_cfg.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_agent_cfg.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_agent_cfg.sv
+0 ../env/serial_agent_cfg.sv
+0 ../scoreboard/serial_agent_cfg.sv
+0 ../sequences/serial_agent_cfg.sv
+0 ../agents/serial_agent_cfg.sv
+0 ../tests/serial_agent_cfg.sv
+0 ../top/serial_agent_cfg.sv
+0 serial_agent.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_agent.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_agent.sv
+0 ../env/serial_agent.sv
+0 ../scoreboard/serial_agent.sv
+0 ../sequences/serial_agent.sv
+0 ../agents/serial_agent.sv
+0 ../tests/serial_agent.sv
+0 ../top/serial_agent.sv
+0 clk_rst_trans_item.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_trans_item.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_trans_item.sv
+0 ../env/clk_rst_trans_item.sv
+0 ../scoreboard/clk_rst_trans_item.sv
+0 ../sequences/clk_rst_trans_item.sv
+0 ../agents/clk_rst_trans_item.sv
+0 ../tests/clk_rst_trans_item.sv
+0 ../top/clk_rst_trans_item.sv
+0 ../agents/serial_agent/clk_rst_trans_item.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_trans_item.sv
+0 clk_rst_monitor.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_monitor.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_monitor.sv
+0 ../env/clk_rst_monitor.sv
+0 ../scoreboard/clk_rst_monitor.sv
+0 ../sequences/clk_rst_monitor.sv
+0 ../agents/clk_rst_monitor.sv
+0 ../tests/clk_rst_monitor.sv
+0 ../top/clk_rst_monitor.sv
+0 ../agents/serial_agent/clk_rst_monitor.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_monitor.sv
+0 clk_rst_driver.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_driver.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_driver.sv
+0 ../env/clk_rst_driver.sv
+0 ../scoreboard/clk_rst_driver.sv
+0 ../sequences/clk_rst_driver.sv
+0 ../agents/clk_rst_driver.sv
+0 ../tests/clk_rst_driver.sv
+0 ../top/clk_rst_driver.sv
+0 ../agents/serial_agent/clk_rst_driver.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_driver.sv
+0 clk_rst_seqr.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_seqr.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_seqr.sv
+0 ../env/clk_rst_seqr.sv
+0 ../scoreboard/clk_rst_seqr.sv
+0 ../sequences/clk_rst_seqr.sv
+0 ../agents/clk_rst_seqr.sv
+0 ../tests/clk_rst_seqr.sv
+0 ../top/clk_rst_seqr.sv
+0 ../agents/serial_agent/clk_rst_seqr.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_seqr.sv
+0 clk_rst_agent_cov.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_agent_cov.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_agent_cov.sv
+0 ../env/clk_rst_agent_cov.sv
+0 ../scoreboard/clk_rst_agent_cov.sv
+0 ../sequences/clk_rst_agent_cov.sv
+0 ../agents/clk_rst_agent_cov.sv
+0 ../tests/clk_rst_agent_cov.sv
+0 ../top/clk_rst_agent_cov.sv
+0 ../agents/serial_agent/clk_rst_agent_cov.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_agent_cov.sv
+0 clk_rst_agent_cfg.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_agent_cfg.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_agent_cfg.sv
+0 ../env/clk_rst_agent_cfg.sv
+0 ../scoreboard/clk_rst_agent_cfg.sv
+0 ../sequences/clk_rst_agent_cfg.sv
+0 ../agents/clk_rst_agent_cfg.sv
+0 ../tests/clk_rst_agent_cfg.sv
+0 ../top/clk_rst_agent_cfg.sv
+0 ../agents/serial_agent/clk_rst_agent_cfg.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_agent_cfg.sv
+0 clk_rst_agent.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_agent.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_agent.sv
+0 ../env/clk_rst_agent.sv
+0 ../scoreboard/clk_rst_agent.sv
+0 ../sequences/clk_rst_agent.sv
+0 ../agents/clk_rst_agent.sv
+0 ../tests/clk_rst_agent.sv
+0 ../top/clk_rst_agent.sv
+0 ../agents/serial_agent/clk_rst_agent.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_agent.sv
+0 serial_ip_scoreboard.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_scoreboard.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_scoreboard.sv
+0 ../env/serial_ip_scoreboard.sv
+0 serial_ip_env.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_env.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_env.sv
+0 serial_ip_env_cfg.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_env_cfg.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_env_cfg.sv
+0 serial_base_seq.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_base_seq.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_base_seq.sv
+0 ../env/serial_base_seq.sv
+0 ../scoreboard/serial_base_seq.sv
+0 ../sequences/serial_base_seq.sv
+0 ../agents/serial_base_seq.sv
+0 ../tests/serial_base_seq.sv
+0 ../top/serial_base_seq.sv
+0 ../agents/serial_agent/serial_base_seq.sv
+0 serial_start_bit_detection_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_start_bit_detection_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_start_bit_detection_test_sequence.sv
+0 ../env/serial_start_bit_detection_test_sequence.sv
+0 ../scoreboard/serial_start_bit_detection_test_sequence.sv
+0 ../sequences/serial_start_bit_detection_test_sequence.sv
+0 ../agents/serial_start_bit_detection_test_sequence.sv
+0 ../tests/serial_start_bit_detection_test_sequence.sv
+0 ../top/serial_start_bit_detection_test_sequence.sv
+0 ../agents/serial_agent/serial_start_bit_detection_test_sequence.sv
+0 serial_data_bit_reception_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_data_bit_reception_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_data_bit_reception_test_sequence.sv
+0 ../env/serial_data_bit_reception_test_sequence.sv
+0 ../scoreboard/serial_data_bit_reception_test_sequence.sv
+0 ../sequences/serial_data_bit_reception_test_sequence.sv
+0 ../agents/serial_data_bit_reception_test_sequence.sv
+0 ../tests/serial_data_bit_reception_test_sequence.sv
+0 ../top/serial_data_bit_reception_test_sequence.sv
+0 ../agents/serial_agent/serial_data_bit_reception_test_sequence.sv
+0 serial_odd_parity_check_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_odd_parity_check_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_odd_parity_check_test_sequence.sv
+0 ../env/serial_odd_parity_check_test_sequence.sv
+0 ../scoreboard/serial_odd_parity_check_test_sequence.sv
+0 ../sequences/serial_odd_parity_check_test_sequence.sv
+0 ../agents/serial_odd_parity_check_test_sequence.sv
+0 ../tests/serial_odd_parity_check_test_sequence.sv
+0 ../top/serial_odd_parity_check_test_sequence.sv
+0 ../agents/serial_agent/serial_odd_parity_check_test_sequence.sv
+0 serial_stop_bit_verification_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_stop_bit_verification_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_stop_bit_verification_test_sequence.sv
+0 ../env/serial_stop_bit_verification_test_sequence.sv
+0 ../scoreboard/serial_stop_bit_verification_test_sequence.sv
+0 ../sequences/serial_stop_bit_verification_test_sequence.sv
+0 ../agents/serial_stop_bit_verification_test_sequence.sv
+0 ../tests/serial_stop_bit_verification_test_sequence.sv
+0 ../top/serial_stop_bit_verification_test_sequence.sv
+0 ../agents/serial_agent/serial_stop_bit_verification_test_sequence.sv
+0 serial_parity_error_detection_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_parity_error_detection_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_parity_error_detection_test_sequence.sv
+0 ../env/serial_parity_error_detection_test_sequence.sv
+0 ../scoreboard/serial_parity_error_detection_test_sequence.sv
+0 ../sequences/serial_parity_error_detection_test_sequence.sv
+0 ../agents/serial_parity_error_detection_test_sequence.sv
+0 ../tests/serial_parity_error_detection_test_sequence.sv
+0 ../top/serial_parity_error_detection_test_sequence.sv
+0 ../agents/serial_agent/serial_parity_error_detection_test_sequence.sv
+0 serial_stop_bit_error_detection_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_stop_bit_error_detection_test_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_stop_bit_error_detection_test_sequence.sv
+0 ../env/serial_stop_bit_error_detection_test_sequence.sv
+0 ../scoreboard/serial_stop_bit_error_detection_test_sequence.sv
+0 ../sequences/serial_stop_bit_error_detection_test_sequence.sv
+0 ../agents/serial_stop_bit_error_detection_test_sequence.sv
+0 ../tests/serial_stop_bit_error_detection_test_sequence.sv
+0 ../top/serial_stop_bit_error_detection_test_sequence.sv
+0 ../agents/serial_agent/serial_stop_bit_error_detection_test_sequence.sv
+0 serial_full_byte_reception_with_valid_signals_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../env/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../scoreboard/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../sequences/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../agents/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../tests/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../top/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 ../agents/serial_agent/serial_full_byte_reception_with_valid_signals_sequence.sv
+0 clk_rst_base_seq.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_base_seq.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_base_seq.sv
+0 ../env/clk_rst_base_seq.sv
+0 ../scoreboard/clk_rst_base_seq.sv
+0 ../sequences/clk_rst_base_seq.sv
+0 ../agents/clk_rst_base_seq.sv
+0 ../tests/clk_rst_base_seq.sv
+0 ../top/clk_rst_base_seq.sv
+0 ../agents/serial_agent/clk_rst_base_seq.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_base_seq.sv
+0 ../agents/clk_rst_agent/clk_rst_base_seq.sv
+0 clk_rst_mid_sim_rst_seq.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/clk_rst_mid_sim_rst_seq.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/clk_rst_mid_sim_rst_seq.sv
+0 ../env/clk_rst_mid_sim_rst_seq.sv
+0 ../scoreboard/clk_rst_mid_sim_rst_seq.sv
+0 ../sequences/clk_rst_mid_sim_rst_seq.sv
+0 ../agents/clk_rst_mid_sim_rst_seq.sv
+0 ../tests/clk_rst_mid_sim_rst_seq.sv
+0 ../top/clk_rst_mid_sim_rst_seq.sv
+0 ../agents/serial_agent/clk_rst_mid_sim_rst_seq.sv
+0 ../agents/serial_agent/seq_lib/clk_rst_mid_sim_rst_seq.sv
+0 ../agents/clk_rst_agent/clk_rst_mid_sim_rst_seq.sv
+0 serial_ip_base_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_base_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_base_test.sv
+0 ../env/serial_ip_base_test.sv
+0 ../scoreboard/serial_ip_base_test.sv
+0 ../sequences/serial_ip_base_test.sv
+0 ../agents/serial_ip_base_test.sv
+0 serial_ip_mid_sim_rst_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_mid_sim_rst_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_mid_sim_rst_test.sv
+0 ../env/serial_ip_mid_sim_rst_test.sv
+0 ../scoreboard/serial_ip_mid_sim_rst_test.sv
+0 ../sequences/serial_ip_mid_sim_rst_test.sv
+0 ../agents/serial_ip_mid_sim_rst_test.sv
+0 serial_ip_start_bit_detection_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_start_bit_detection_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_start_bit_detection_test.sv
+0 ../env/serial_ip_start_bit_detection_test.sv
+0 ../scoreboard/serial_ip_start_bit_detection_test.sv
+0 ../sequences/serial_ip_start_bit_detection_test.sv
+0 ../agents/serial_ip_start_bit_detection_test.sv
+0 serial_ip_data_bit_reception_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_data_bit_reception_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_data_bit_reception_test.sv
+0 ../env/serial_ip_data_bit_reception_test.sv
+0 ../scoreboard/serial_ip_data_bit_reception_test.sv
+0 ../sequences/serial_ip_data_bit_reception_test.sv
+0 ../agents/serial_ip_data_bit_reception_test.sv
+0 serial_ip_odd_parity_check_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_odd_parity_check_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_odd_parity_check_test.sv
+0 ../env/serial_ip_odd_parity_check_test.sv
+0 ../scoreboard/serial_ip_odd_parity_check_test.sv
+0 ../sequences/serial_ip_odd_parity_check_test.sv
+0 ../agents/serial_ip_odd_parity_check_test.sv
+0 serial_ip_stop_bit_verification_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_stop_bit_verification_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_stop_bit_verification_test.sv
+0 ../env/serial_ip_stop_bit_verification_test.sv
+0 ../scoreboard/serial_ip_stop_bit_verification_test.sv
+0 ../sequences/serial_ip_stop_bit_verification_test.sv
+0 ../agents/serial_ip_stop_bit_verification_test.sv
+0 serial_ip_parity_error_detection_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_parity_error_detection_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_parity_error_detection_test.sv
+0 ../env/serial_ip_parity_error_detection_test.sv
+0 ../scoreboard/serial_ip_parity_error_detection_test.sv
+0 ../sequences/serial_ip_parity_error_detection_test.sv
+0 ../agents/serial_ip_parity_error_detection_test.sv
+0 serial_ip_stop_bit_error_detection_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_stop_bit_error_detection_test.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_stop_bit_error_detection_test.sv
+0 ../env/serial_ip_stop_bit_error_detection_test.sv
+0 ../scoreboard/serial_ip_stop_bit_error_detection_test.sv
+0 ../sequences/serial_ip_stop_bit_error_detection_test.sv
+0 ../agents/serial_ip_stop_bit_error_detection_test.sv
+0 serial_ip_full_byte_reception_with_valid_signals.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/systemverilog/serial_ip_full_byte_reception_with_valid_signals.sv
+0 /usr/Synopsys/V-2023.12-SP1/etc/uvm/serial_ip_full_byte_reception_with_valid_signals.sv
+0 ../env/serial_ip_full_byte_reception_with_valid_signals.sv
+0 ../scoreboard/serial_ip_full_byte_reception_with_valid_signals.sv
+0 ../sequences/serial_ip_full_byte_reception_with_valid_signals.sv
+0 ../agents/serial_ip_full_byte_reception_with_valid_signals.sv
+41
++define+UVM_DIRECTC_OPTS
++incdir+/usr/Synopsys/V-2023.12-SP1/etc/uvm
++incdir+/usr/Synopsys/V-2023.12-SP1/etc/uvm/
+-Mamsrun=
+-Masflags=--32
+-Mcc=gcc
+-Mcfl= -pipe -m32 -DVCS -DUVM_DPI_DO_TYPE_CHECK -O -I/usr/Synopsys/V-2023.12-SP1/include
+-Mcplusplus=g++
+-Mcrt0=
+-Mcrtn=
+-Mcsrc=/usr/Synopsys/V-2023.12-SP1/etc/uvm/dpi/uvm_dpi.cc
+-Mexternalobj=
+-Mldflags= -m32 -m32 -rdynamic
+-Mobjects=/usr/Synopsys/V-2023.12-SP1/linux/lib/vpdlogstub.o /usr/Synopsys/V-2023.12-SP1/linux/lib/libvirsim.so /usr/Synopsys/V-2023.12-SP1/linux/lib/liberrorinf.so /usr/Synopsys/V-2023.12-SP1/linux/lib/libsnpsmalloc.so /usr/Synopsys/V-2023.12-SP1/linux/lib/libvfs.so
+-Mout=simv
+-Msaverestoreobj=/usr/Synopsys/V-2023.12-SP1/linux/lib/vcs_save_restore_new.o
+-Msyslibs=/usr/Synopsys/V-2023.12-SP1/linux/lib/ctype-stubs_32.a -ldl
+-Mvcsaceobjs=
+-Mxcflags= -pipe -m32 -DVCS -DUVM_DPI_DO_TYPE_CHECK -I/usr/Synopsys/V-2023.12-SP1/include
+-Mxllcflags=
+-P
+-cm
+-cm_dir
+-f rtl.f
+-f tb.f
+-gen_obj
+-l
+-ntb_opts
+-picarchive
+-sverilog
+-timescale=1ns/10ps
+/usr/Synopsys/V-2023.12-SP1/linux/bin/vcs1
+vcs.log
+/usr/Synopsys/V-2023.12-SP1/etc/uvm/uvm_pkg.sv
+uvm
+line+tgl+cond+branch+fsm
+./coverage_data
+rtl.f
+tb.f
+../top/serial_ip_tb_top.sv
+/usr/Synopsys/V-2023.12-SP1/linux/lib/vcsdstub.tab
+47
+_CE_M=
+_CE_CONDA=
+VMR_MODE_FLAG=32
+VCS_UVM_HOME=/usr/Synopsys/V-2023.12-SP1/etc/uvm
+VCS_PYTHON3=/usr/Synopsys/V-2023.12-SP1/linux/bin/Python-3.6.1/bin/python3
+VCS_PATHMAP_PRELOAD_DONE=1
+VCS_MX_HOME_INTERNAL=1
+VCS_LOG_FILE=vcs.log
+VCS_HOME=/usr/Synopsys/V-2023.12-SP1
+VCS_DEPTH=0
+VCS_ARG_ADDED_FOR_TMP=1
+VCS_ARCH_OVERRIDE=linux
+VCS_ARCH=linux
+VCS_AMD_PURE32=1
+UNAME=/bin/uname
+TOOL_HOME=/usr/Synopsys/V-2023.12-SP1/linux
+SSH_TTY=/dev/pts/0
+SSH_CONNECTION=172.17.0.1 57550 172.17.0.3 52857
+SSH_CLIENT=172.17.0.1 57550 52857
+SNPS_VCS_PYTHON3=/usr/Synopsys/V-2023.12-SP1/linux/bin/Python-3.6.1/bin/python3
+SNPS_VCS_CLANG_PATH=/usr/Synopsys/V-2023.12-SP1/linux/clang
+SNPS_INTERNAL_VCS_LINUX_OS=ubuntu
+SCRNAME=vcs
+SCRIPT_NAME=vcs
+OVA_UUM=0
+OPENROAD=/softwares/OpenROAD-flow-scripts/tools/OpenROAD
+MOTD_SHOWN=pam
+MFLAGS=
+MAKELEVEL=1
+MAKEFLAGS=
+LC_TIME=C.UTF-8
+LC_TELEPHONE=C.UTF-8
+LC_PAPER=C.UTF-8
+LC_NUMERIC=C.UTF-8
+LC_NAME=C.UTF-8
+LC_MONETARY=C.UTF-8
+LC_MEASUREMENT=C.UTF-8
+LC_IDENTIFICATION=C.UTF-8
+LC_ALL=C
+LC_ADDRESS=C.UTF-8
+FLOW_HOME=/softwares/OpenROAD-flow-scripts/flow
+CONDA_SHLVL=1
+CONDA_PYTHON_EXE=/opt/anaconda/bin/python
+CONDA_PROMPT_MODIFIER=(moore-agent) 
+CONDA_PREFIX=/opt/anaconda/envs/moore-agent
+CONDA_EXE=/opt/anaconda/bin/conda
+CONDA_DEFAULT_ENV=moore-agent
+0
+0
+186
+1744710379 ../tests/serial_ip_full_byte_reception_with_valid_signals.sv
+1744710162 ../tests/serial_ip_stop_bit_error_detection_test.sv
+1744709569 ../tests/serial_ip_parity_error_detection_test.sv
+1744709301 ../tests/serial_ip_stop_bit_verification_test.sv
+1744709055 ../tests/serial_ip_odd_parity_check_test.sv
+1744708530 ../tests/serial_ip_data_bit_reception_test.sv
+1744707534 ../tests/serial_ip_start_bit_detection_test.sv
+1744707084 ../tests/serial_ip_mid_sim_rst_test.sv
+1744707356 ../tests/serial_ip_base_test.sv
+1744707084 ../agents/clk_rst_agent/seq_lib/clk_rst_mid_sim_rst_seq.sv
+1744707084 ../agents/clk_rst_agent/seq_lib/clk_rst_base_seq.sv
+1744710621 ../agents/serial_agent/seq_lib/serial_full_byte_reception_with_valid_signals_sequence.sv
+1744710223 ../agents/serial_agent/seq_lib/serial_stop_bit_error_detection_test_sequence.sv
+1744709787 ../agents/serial_agent/seq_lib/serial_parity_error_detection_test_sequence.sv
+1744709407 ../agents/serial_agent/seq_lib/serial_stop_bit_verification_test_sequence.sv
+1744708918 ../agents/serial_agent/seq_lib/serial_odd_parity_check_test_sequence.sv
+1744708618 ../agents/serial_agent/seq_lib/serial_data_bit_reception_test_sequence.sv
+1744708263 ../agents/serial_agent/seq_lib/serial_start_bit_detection_test_sequence.sv
+1744707084 ../agents/serial_agent/seq_lib/serial_base_seq.sv
+1744707084 ../env/serial_ip_env_cfg.sv
+1744707084 ../env/serial_ip_env.sv
+1744707356 ../scoreboard/serial_ip_scoreboard.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_agent.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_agent_cfg.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_agent_cov.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_seqr.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_driver.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_monitor.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_trans_item.sv
+1744707967 ../agents/serial_agent/serial_agent.sv
+1744707084 ../agents/serial_agent/serial_agent_cfg.sv
+1744707084 ../agents/serial_agent/serial_agent_cov.sv
+1744708065 ../agents/serial_agent/serial_seqr.sv
+1744707207 ../agents/serial_agent/serial_driver.sv
+1744707207 ../agents/serial_agent/serial_monitor.sv
+1744708394 ../agents/serial_agent/serial_trans_item.sv
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/vcs/vcs_uvm_alt.sv
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/snps_uvm_reg_bank.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_reg_mem_built_in_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_reg_mem_shared_access_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_reg_access_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_mem_access_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_mem_walk_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_reg_bit_bash_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/sequences/uvm_reg_hw_reset_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_block.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_map.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_mem.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_vreg.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_mem_mam.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_file.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_fifo.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_indirect.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_vreg_field.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_field.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_backdoor.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_cbs.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_sequence.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_predictor.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_adapter.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_item.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/reg/uvm_reg_model.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_sockets.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_sockets_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_exports.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_ports.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_imps.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_ifs.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_generic_payload.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_time.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm2/uvm_tlm2.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequence_builtin.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequence_library.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequence.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequence_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_push_sequencer.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequencer.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequencer_param_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequencer_analysis_fifo.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequencer_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_sequence_item.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/seq/uvm_seq.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_test.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_env.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_agent.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_scoreboard.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_push_driver.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_driver.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_monitor.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_subscriber.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_random_stimulus.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_algorithmic_comparator.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_in_order_comparator.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_policies.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_pair.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/comps/uvm_comps.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_sqr_connections.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_tlm_req_rsp.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_tlm_fifos.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_tlm_fifo_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_analysis_port.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_exports.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_ports.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_imps.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_port_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_sqr_ifs.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_tlm_ifs.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_tlm.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_cmdline_processor.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_globals.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_heartbeat.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_objection.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_root.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_component.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_runtime_phases.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_common_phases.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_task_phase.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_topdown_phase.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_bottomup_phase.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_domain.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_phase.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_transaction.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_report_object.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_report_handler.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_report_server.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_report_catcher.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_callback.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_barrier.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_event.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_event_callback.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_recorder.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_packer.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_comparer.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_printer.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_config_db.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_resource_db.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_resource_specializations.svh
+1709614666 /usr/Synopsys/V-2023.12-SP1/etc/uvm/deprecated/uvm_resource_converter.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_resource.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_spell_chkr.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_registry.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_factory.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_queue.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_pool.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_object.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_misc.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_object_globals.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_version.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/base/uvm_base.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/dpi/uvm_regex.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/dpi/uvm_svcmd_dpi.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/dpi/uvm_hdl.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/dpi/uvm_dpi.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/directc/uvm_seed.vh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/directc/uvm_directc.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_deprecated_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_reg_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_callback_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_sequence_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/tlm1/uvm_tlm_imps.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_tlm_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_printer_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_object_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_phase_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_message_defines.svh
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/snps_macros.svp
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/macros/uvm_version_defines.svh
+1709614666 /usr/Synopsys/V-2023.12-SP1/etc/uvm/uvm_macros.svh
+1744707084 ../top/serial_ip_tb_top.sv
+1744710456 ../tests/serial_ip_test_pkg.sv
+1744707084 ../agents/clk_rst_agent/seq_lib/clk_rst_seq_pkg.sv
+1744710571 ../agents/serial_agent/seq_lib/serial_seq_pkg.sv
+1744707084 ../env/serial_ip_env_pkg.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_agent_pkg.sv
+1744707084 ../agents/serial_agent/serial_agent_pkg.sv
+1744707084 ../agents/clk_rst_agent/clk_rst_if.sv
+1744707084 ../agents/serial_agent/serial_if.sv
+1744707084 ../rtl/full_rtl.sv
+1709614666 /usr/Synopsys/V-2023.12-SP1/etc/uvm/uvm_pkg.sv
+1709611556 /usr/Synopsys/V-2023.12-SP1/include/cm_vcsd.tab
+1709611592 /usr/Synopsys/V-2023.12-SP1/linux/lib/vcsdstub.tab
+1744710236 tb.f
+1744710236 rtl.f
+6
+1709614665 /usr/Synopsys/V-2023.12-SP1/etc/uvm/dpi/uvm_dpi.cc
+1709612877 /usr/Synopsys/V-2023.12-SP1/linux/lib/vpdlogstub.o
+1709612988 /usr/Synopsys/V-2023.12-SP1/linux/lib/libvirsim.so
+1709612498 /usr/Synopsys/V-2023.12-SP1/linux/lib/liberrorinf.so
+1709612363 /usr/Synopsys/V-2023.12-SP1/linux/lib/libsnpsmalloc.so
+1709612747 /usr/Synopsys/V-2023.12-SP1/linux/lib/libvfs.so
+1744710627 simv.daidir
+-1 partitionlib

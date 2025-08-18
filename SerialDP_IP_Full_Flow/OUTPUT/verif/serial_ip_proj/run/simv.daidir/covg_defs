@@ -1,0 +1,77 @@
+global coverage_group 0 0 serial_agent_pkg::serial_agent_cov::cg_trans __coverage_serial_agent_cov.cg_trans unused_serial_agent_cov_cg_trans_loop_label serial_agent_pkg 0 1 0 0 0  ( 0 
+)
+ 1 2
+ 0 76 /workspace/tmp/serial_ip_proj/run/../agents/serial_agent/serial_agent_cov.sv
+ 78 /workspace/tmp/serial_ip_proj/run/../agents/clk_rst_agent/clk_rst_agent_cov.sv
+ 36 0 0 0 1 0 0 0 0  1
+0
+26 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0 0
+ 0
+ 0 0
+ 0 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+0
+0
+0
+64
+0
+ 0
+
+0
+0
+0
+0
+end_coverage_group
+global coverage_group 0 0 clk_rst_agent_pkg::clk_rst_agent_cov::cg_trans __coverage_clk_rst_agent_cov.cg_trans unused_clk_rst_agent_cov_cg_trans_loop_label clk_rst_agent_pkg 0 1 0 0 0  ( 0 
+)
+ 0 36 1 0 0 1 0 0 0 0  1
+0
+26 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0 0
+ 0
+ 0 0
+ 0 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+0
+0
+0
+64
+0
+ 0
+
+0
+0
+0
+0
+end_coverage_group

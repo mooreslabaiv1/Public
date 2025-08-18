@@ -1,4 +1,0 @@
-single_input_test_test
-all_zeros_input_test_test
-reset_functionality_test_test
-multiple_inputs_test_test

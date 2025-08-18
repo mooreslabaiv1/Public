@@ -1,0 +1,8 @@
+<Command name="schRTLInfo"  delimiter="."  >
+<RTLBlock >
+<RTLInfo   name="state_0"  type="2"  fileName="../rtl/full_rtl.sv"  >
+    <Seg beginLine="68"  endLine="112"  />
+  </RTLInfo>
+ <Instance name="serial_ip_tb_top.u_serialDP"  />
+</RTLBlock>
+ </Command>
