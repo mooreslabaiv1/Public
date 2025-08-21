@@ -1,0 +1,504 @@
+Name,Description,Steps,Checkers,Goals,Related_Feature,Citations
+basic_synchronous_reset_initialization_test,"Verify that asserting synchronous reset (rst) during operation correctly initializes all outputs (gnt_w, gnt_id) and that normal operation resumes on deassertion at the next clock edge. This test covers the basic synchronous reset behavior as described in the specification.","1) Continuously drive 'clk' throughout the test.
+2) After 5-10 cycles of 'clk', assert 'rst' high for 4 cycles while keeping all other inputs (req, ack, prio, prio_id, prio_upt) at 0.
+3) During reset, observe outputs 'gnt_w' and 'gnt_id'.
+4) Deassert 'rst' (set to 0) on the next rising edge of 'clk'.
+5) After reset deassertion, drive a simple request pattern on 'req' (e.g., set req[0]=1, others=0) for several cycles, keeping 'ack', 'prio', 'prio_id', 'prio_upt' at 0.
+6) Observe outputs 'gnt_w' and 'gnt_id' for correct grant behavior post-reset.","1) During each cycle when 'rst' is asserted, check that 'gnt_w' is all zeros and 'gnt_id' is zero (or as specified for reset state).
+2) After 'rst' is deasserted, check that the first grant is issued to the lowest index requestor with 'req' asserted (e.g., if req[0]=1, then gnt_w[0]=1 and gnt_id=0).
+3) Log the sequence of observed 'gnt_w' and 'gnt_id' values before, during, and after reset for comparison against expected behavior.","Functional Coverage:
+  - Cover bin: 'rst_asserted' — at least one cycle with 'rst' high.
+  - Cover bin: 'rst_deasserted' — at least one cycle with 'rst' low after being high.
+  - Cover bin: 'gnt_w_reset_zero' — 'gnt_w' observed as all zeros during reset.
+  - Cover bin: 'gnt_id_reset_zero' — 'gnt_id' observed as zero during reset.
+  - Cover bin: 'grant_after_reset' — first grant after reset is to the lowest index asserted in 'req'.
+  - Cross coverage: ('rst_deasserted', 'grant_after_reset').
+Code Coverage:
+  - Statement, branch, and toggle coverage of reset logic and grant path.",Synchronous Reset Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 13)]"
+basic_arbitration_grant_and_latency_test,"Verify that the arbiter issues valid grants and encoded IDs per weighted round robin or default priority rules when multiple requests are present, under nominal conditions with default priorities and credits. This scenario checks that the grant outputs (gnt_w, gnt_id) correctly reflect the request vector and default priorities, and that grants rotate among active requestors according to round robin or weighted round robin policy, without any priority updates.","1) Continuously drive 'clk' throughout the test.
+2) Assert 'rst' high for 8 cycles to apply synchronous reset, then de-assert to begin normal operation.
+3) After reset, drive 'req[N-1:0]' with a simple pattern (e.g., 0110) to assert requests from two requestors for several cycles.
+4) Do not drive 'prio', 'prio_id', or 'prio_upt' (no priority updates; priorities remain at default values after reset).
+5) Keep 'ack' low initially, then assert 'ack' in the next cycle after a grant is observed.
+6) Observe 'gnt_w' and 'gnt_id' on each cycle and log their values.
+7) Continue for at least 4 cycles to observe grant rotation among active requestors.","1) For each cycle, check that only one bit of 'gnt_w' is asserted (one-hot grant) and that 'gnt_id' matches the index of the asserted bit in 'gnt_w'.
+2) Confirm that 'gnt_w' and 'gnt_id' correspond to one of the active requestors (as indicated by 'req').
+3) Verify that grants rotate among requesting agents according to round robin or weighted round robin rules, given default priorities.
+4) After 'ack' is asserted, ensure the next eligible requestor is granted.
+5) Confirm that no grant is given when no 'req' is asserted.
+6) Log and compare the observed grant sequence against the expected sequence for the given 'req' pattern.","Functional Coverage:
+  - Cover bin: 'gnt_w_min' for minimum value (only LSB set).
+  - Cover bin: 'gnt_w_max' for maximum value (only MSB set).
+  - Cover bin: 'gnt_id_min' for minimum value (0).
+  - Cover bin: 'gnt_id_max' for maximum value (N-1).
+  - Cover bin: grant rotates among multiple active requestors.
+  - Cover bin: ack asserted after grant.
+  - Cover bin: no grant when req=0.
+  - Cross coverage: 'req' pattern vs. 'gnt_id' to ensure all combinations of requests and grants are exercised.
+Code Coverage:
+  - Statement, branch, and toggle coverage of arbitration and grant logic.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19)]"
+basic_grant_acknowledgment_test,"Verify that the arbiter correctly issues a grant to a requesting agent, and upon receiving an acknowledge, updates its state to grant the next eligible requestor. This scenario validates the basic grant-acknowledge-credit update loop under nominal conditions with two requestors active.","1) Continuously drive `clk` throughout the test.
+2) Assert `rst` high for 8 cycles to apply synchronous reset, then de-assert (`rst` low) to release reset.
+3) After reset, drive `req` such that two requestors (e.g., req[1] and req[2]) are asserted (e.g., `req = 3'b110`).
+4) Keep `ack` low initially. Observe `gnt_w` and `gnt_id`.
+5) When a grant is observed (e.g., `gnt_w` one-hot, `gnt_id` matches), assert `ack` high for one cycle to acknowledge the grant.
+6) Deassert `ack` and observe that the next eligible requestor is granted in the following cycle(s).
+7) Repeat the grant-acknowledge sequence for a few cycles to cover both requestors.
+8) End test after both requestors have been granted at least once.","1) After each `ack` assertion, check that the next grant (`gnt_w`, `gnt_id`) corresponds to the other active requestor.
+2) Log the sequence of grants and compare against the expected round-robin or weighted order for the given initial priorities.
+3) Confirm that no grant is repeated for the same requestor without an intervening acknowledge.
+4) Ensure that only one bit is set in `gnt_w` at any time (one-hot check).","Functional Coverage:
+  - Cover each requestor being granted at least once (cover bins: grant_req0, grant_req1, grant_req2, ... up to N-1).
+  - Cover all possible pairs of consecutive grants (cross: gnt_id[n] followed by gnt_id[m], for all n ≠ m).
+  - Cover `ack` asserted in the presence of a valid grant.
+  - Cover minimum and maximum values of `gnt_id` (cover bins: gnt_id_min, gnt_id_max).
+Code Coverage:
+  - Statement, branch, and toggle coverage of grant and acknowledge logic.",Grant Acknowledge and Credit Update Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16)]"
+basic_grant_output_consistency_test,"Verify that, under nominal conditions, the one-hot grant output (gnt_w) and the encoded grant ID (gnt_id) always correspond to the same requestor in every arbitration cycle. This ensures that the arbiter's grant encoding logic is functionally correct for typical request patterns and priorities.","1) Continuously drive 'clk' throughout the test.
+2) Assert 'rst' high for 8 cycles after simulation start, then de-assert to bring the DUT out of reset.
+3) Initialize 'req' to all zeros for 5 cycles after reset.
+4) For N=3 (example), apply the following sequence:
+   a) Cycle 0: Set 'req' = 0110 (requestors 1 and 2 active), keep 'ack' low, 'prio_upt' low.
+   b) Cycle 1: Keep 'req' = 0110, set 'ack' high, 'prio_upt' low.
+   c) Cycle 2: Keep 'req' = 0110, set 'ack' high, 'prio_upt' low.
+   d) Cycle 3: Keep 'req' = 0110, set 'ack' low, 'prio_upt' low.
+5) Repeat the above for other simple patterns (e.g., single active requestor, all requestors active, round-robin patterns) with 'ack' toggled as in the example.
+6) Do not drive 'prio', 'prio_id', or 'prio_upt' during this scenario (no priority updates).","1) For every cycle, compare the observed 'gnt_w' and 'gnt_id':
+   - Identify the index i where 'gnt_w[i]' is 1 (one-hot).
+   - Check that 'gnt_id' equals i (in binary).
+2) Log all grant decisions and mismatches.
+3) For each request pattern, confirm that only one bit of 'gnt_w' is set when a grant is issued, and that 'gnt_id' matches the granted requestor index.
+4) At the end of the test, report any cycles where 'gnt_w' and 'gnt_id' do not correspond to the same requestor.","Functional Coverage:
+  - Cover all possible single-active-requestor patterns (req = 1, 2, 4 for N=3).
+  - Cover all possible two-active-requestor patterns (req = 3, 5, 6 for N=3).
+  - Cover all-active-requestor pattern (req = 7 for N=3).
+  - Cover minimum value of 'gnt_id' (0) and maximum value (N-1).
+  - Cover minimum value of 'gnt_w' (0001) and maximum value (1000 for N=4, etc.).
+  - Cross coverage between 'req' pattern and observed 'gnt_id'.
+Code Coverage:
+  - Statement, branch, and toggle coverage of grant encoding logic.",Grant Encoding Consistency Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18)]"
+basic_priority_update_test,"Verify that a priority update via 'prio', 'prio_id', and 'prio_upt' correctly changes the grant order in subsequent arbitration cycles under nominal conditions. This scenario checks that the updated priority is applied to the selected requestor and is reflected in the grant selection, ensuring that the agent with increased priority is granted before or more frequently than before. The test also ensures that no grants are given to non-requesting requestors and that all protocol and functional behaviors are maintained.","1) Continuously drive 'clk' throughout the test.
+2) Assert 'rst' high for 8 cycles to apply synchronous reset, then de-assert.
+3) After reset, drive 'req' with a pattern (e.g., 0101) to assert requests from two requestors (e.g., #0 and #2) for the duration of the test.
+4) Set initial priorities for all requestors to a known value (e.g., 2 for all) by default (assumed after reset).
+5) Observe initial grant order for a few cycles (no priority update).
+6) Assert 'prio_upt' high for one cycle, drive 'prio_id' to select one of the requesting agents (e.g., #2), and drive 'prio' with a higher value (e.g., 8) to increase its priority.
+7) Deassert 'prio_upt' and continue driving the same 'req' pattern.
+8) Observe 'gnt_w' and 'gnt_id' to see if the updated priority agent is now granted first or more frequently. Continue for a few more cycles to confirm grant behavior remains consistent with updated priorities.","1) Before the priority update, log the grant order for the requesting agents.
+2) After the priority update (prio_upt=1, prio_id updated, prio updated), check that the agent whose priority was increased is granted before or more frequently than before.
+3) Confirm that 'gnt_w' remains one-hot and 'gnt_id' matches the asserted bit.
+4) Compare the observed grant sequence before and after the priority update to verify the effect.
+5) Confirm that no grant is given to a non-requesting requestor.
+6) Log all grant decisions and priority updates for post-test analysis.","Functional Coverage:
+  - Cover bin: 'prio_min' for minimum value driven on 'prio'.
+  - Cover bin: 'prio_max' for maximum value driven on 'prio'.
+  - Cover bin: 'prio_id_min' for minimum value of 'prio_id'.
+  - Cover bin: 'prio_id_max' for maximum value of 'prio_id'.
+  - Cover bin: 'prio_upt_pulse' for at least one pulse of 'prio_upt'.
+  - Cover bin: grant given to requestor with updated priority.
+  - Cross coverage: (prio_id, prio) when prio_upt asserted and 'prio_id' vs. 'gnt_id' after update to ensure each agent can be updated and subsequently granted.
+Code Coverage:
+  - Statement, branch, and toggle coverage of priority update and arbitration logic.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19)]"
+simultaneous_priority_update_and_ack,"Verify that the DUT correctly handles a simultaneous assertion of a priority update (prio_upt) and a grant acknowledgment (ack) in the same clock cycle, ensuring both operations are processed without functional hazard. This scenario checks that a priority update for a requestor and an acknowledgment of a grant can occur together, and the next grant reflects the updated priority.","1) Continuously drive 'clk' throughout the test.
+2) Assert 'rst' high for 8 cycles to apply synchronous reset, then deassert to bring DUT out of reset.
+3) Initialize all requestors with known priorities by driving 'prio', 'prio_id', and 'prio_upt' for each requestor in separate cycles (if required by DUT initialization).
+4) Drive 'req' such that at least two requestors are active (e.g., req = 0011 for requestors 0 and 1).
+5) Wait for a grant to be issued (observe 'gnt_id' and 'gnt_w').
+6) In a single clock cycle, simultaneously:
+   a) Assert 'ack' high to acknowledge the current grant.
+   b) Assert 'prio_upt' high, drive 'prio_id' to the ID of a different active requestor, and drive 'prio' to a new value (e.g., increase priority).
+7) Deassert 'ack' and 'prio_upt' in the next cycle, keep 'req' stable.
+8) Observe the next grant ('gnt_id', 'gnt_w') to confirm that the updated priority is reflected in arbitration.","1) After the simultaneous assertion of 'ack' and 'prio_upt', check that the next grant ('gnt_id', 'gnt_w') is given to the requestor with the updated (higher) priority, as per the WRR policy.
+2) Log the sequence of grants and compare against a golden reference model that accounts for the priority update and acknowledgment occurring together.
+3) Confirm that no grant is missed or duplicated during the transition.
+4) Ensure that the priority update is applied to the correct requestor (as indicated by 'prio_id') and that the grant reflects this change in the next arbitration cycle.","Functional Coverage:
+  - Cover bin: 'simultaneous_ack_and_prio_upt' — cycles where both 'ack' and 'prio_upt' are asserted together.
+  - Cover bin: 'prio_id_min' — 'prio_id' at its minimum value during simultaneous assertion.
+  - Cover bin: 'prio_id_max' — 'prio_id' at its maximum value during simultaneous assertion.
+  - Cover bin: 'prio_min' — 'prio' at its minimum value during simultaneous assertion.
+  - Cover bin: 'prio_max' — 'prio' at its maximum value during simultaneous assertion.
+  - Cross coverage: ('ack' & 'prio_upt') x ('prio_id') x ('prio') to ensure all combinations of requestor IDs and priority values are exercised during simultaneous assertion.
+Code Coverage:
+  - Statement, branch, and toggle coverage of the priority update and grant acknowledgment logic paths.",Simultaneous Priority Update and Acknowledge Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 21)]"
+synchronous_reset_stress_with_back_to_back_requests,"Stress test the synchronous reset behavior under high-throughput, back-to-back request conditions. Verify that the DUT correctly initializes all outputs and resumes normal operation after reset, even when reset is asserted and deasserted in the middle of high-frequency request and grant activity.","1) Continuously drive `clk` throughout the test.
+2) For the first 10 cycles, randomize and drive all input ports (`req`, `ack`, `prio`, `prio_id`, `prio_upt`) with legal values, ensuring at least two requestors are active at all times.
+3) At a random cycle between 5 and 10, assert `rst` high for exactly 2 cycles (synchronous reset), then deassert (`rst` low) on the next rising edge of `clk`.
+4) Continue driving high-throughput, randomized, back-to-back legal transactions on all input ports for at least 100 cycles after reset deassertion, including bursts of `prio_upt` and `ack` toggling, and randomized `req` patterns.
+5) Repeat the reset assertion/deassertion sequence at least three times during the test, each time at a different phase of request/grant activity.","1) Immediately after each deassertion of `rst`, check that the first observed `gnt_w` and `gnt_id` outputs correspond to the expected reset state (no grants or all zeros) for one cycle, then normal arbitration resumes.
+2) For each reset event, compare the observed post-reset grant sequence (`gnt_w`, `gnt_id`) against a golden reference model that is initialized identically at reset and driven with the same input stimulus.
+3) Log and compare the sequence of grants before and after each reset to ensure no spurious or stuck grants occur across reset boundaries.","Functional Coverage:
+  - Cover bin: 'reset_at_idle' — reset asserted when no requests are active.
+  - Cover bin: 'reset_during_burst' — reset asserted during a burst of back-to-back requests and grants.
+  - Cover bin: 'reset_during_prio_update' — reset asserted while `prio_upt` is active.
+  - Cover bin: 'reset_with_ack_pending' — reset asserted when `ack` is high.
+  - Cover bin: 'reset_min_duration' — reset asserted for minimum legal duration (1 cycle).
+  - Cover bin: 'reset_max_duration' — reset asserted for maximum tested duration (e.g., 5 cycles).
+  - Cover bin: 'post_reset_grant_min' — first post-reset grant is to minimum requestor ID (0).
+  - Cover bin: 'post_reset_grant_max' — first post-reset grant is to maximum requestor ID (N-1).
+  - Cross coverage: (reset_phase) X (active_req_count) X (prio_upt_active) X (ack_state) at time of reset assertion.",Synchronous Reset Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 13)]"
+arbiter_maximal_concurrent_requests_and_dynamic_priority_update_stress_test,"Apply maximum legal request saturation (all `req` bits high) from all requestors while dynamically and randomly updating priorities for all requestors in a round-robin and random order, with random but protocol-compliant `ack` responses. This scenario stresses the arbitration logic under full load and rapid priority changes.","1) Continuously drive `clk` throughout the test.
+2) Assert `rst` high for 8 cycles, then de-assert to bring the DUT out of reset.
+3) For a randomized number of cycles (e.g., 2000-6000):
+   a) On every cycle, drive all bits of `req` high (all requestors active).
+   b) Randomly assert `ack` in cycles where a grant is expected (i.e., when `gnt_w` is non-zero), with random gaps between acknowledges to simulate backpressure.
+   c) On every cycle, with 50% probability, assert `prio_upt` and drive `prio_id` in a round-robin sequence (0 to N-1), and `prio` with random legal values (0 to PRIORITY_W-1), ensuring that all requestors receive multiple priority updates during the test.
+   d) Occasionally (e.g., every 10-20 cycles), burst-update all requestors' priorities in consecutive cycles.
+   e) Ensure that minimum and maximum values for `prio` are driven for each requestor at least once.
+4) No idle cycles; all signals are driven every cycle.","1) Maintain a scoreboard of expected priorities for each requestor and expected grant order based on WRR policy; after each grant, compare actual `gnt_id` and `gnt_w` to scoreboard predictions.
+2) For each priority update, check that the next eligible grant reflects the updated priority for the targeted requestor.
+3) Check that all requestors are granted in proportion to their current priorities, even as priorities change rapidly.
+4) Explicitly check that no requestor is starved, and that all requestors receive at least one grant after their priority is updated to the maximum value.","Functional Coverage:
+1) Cover all possible values of `prio_id` (0 to N-1) and `prio` (0 to PRIORITY_W-1) for priority updates, with explicit bins for min and max values.
+2) Cover the cross of (`prio_id`, `prio`) for all requestors.
+3) Cover all possible values of `gnt_id` (0 to N-1) and `gnt_w` (one-hot for each requestor).
+4) Cover the cross of (`req` all high, `prio_upt` asserted, `ack` asserted) in the same cycle.
+5) Cover burst updates where all requestors' priorities are updated in consecutive cycles.
+6) Cover the cross of (`gnt_id`, `prio_id`, `prio`) to ensure all requestors are granted after their priority is updated to min and max values.
+Code Coverage:
+- Target 100% toggle and branch coverage for all logic driven by `prio`, `prio_id`, `prio_upt`, `req`, `ack`, `gnt_id`, and `gnt_w`.",Priority Update Mechanism Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19)]"
+simultaneous_priority_update_and_ack,"Stress the priority update mechanism and grant acknowledge logic by issuing back-to-back and overlapping priority updates (prio_upt) and grant acknowledgments (ack) while generating high-throughput request traffic. This scenario exercises the DUT's ability to handle concurrent arbitration, grant, and priority update operations, including simultaneous and closely spaced events, without hazard, loss of update, or starvation. The test ensures that the design correctly handles all legal interleavings of prio_upt and ack, including when both are asserted in the same cycle, and that all requestors receive grants proportional to their updated priorities under high load.","1) Continuously drive 'clk' throughout the test.
+2) Assert 'rst' high for 8 cycles (after 5-10 cycles of 'clk'), then deassert 'rst' to bring the DUT out of reset.
+3) For a randomized number of cycles (e.g., 1000-5000):
+   a) On every cycle, randomly assert bits in 'req' (width N) to simulate multiple concurrent requestors, including bursts where all requestors are active.
+   b) Randomly assert 'ack' in cycles where a grant is expected (i.e., when 'gnt_w' is non-zero), including back-to-back 'ack' for consecutive grants.
+   c) On every cycle, with high probability (e.g., 70%), assert 'prio_upt' high and drive random legal values on 'prio_id' (0 to N-1) and 'prio' (0 to PRIORITY_W-1), ensuring back-to-back and overlapping priority updates to different and same requestors, including cycles where 'prio_upt' and 'ack' are asserted simultaneously or staggered by 1-2 cycles.
+   d) Ensure that at least once, minimum and maximum values for 'prio' are driven for each 'prio_id'.
+   e) No idle cycles between transactions; all signals are driven every cycle.
+4) Continue this pattern for the entire test duration, ensuring high transaction throughput and interleaving of all stimulus types.","1) For every priority update (when 'prio_upt' is asserted), check that the next grant ('gnt_id', 'gnt_w') reflects the updated priority for the targeted requestor as soon as protocol allows.
+2) Maintain a scoreboard of expected priorities per requestor and expected grant order based on WRR policy; compare actual 'gnt_id' and 'gnt_w' against scoreboard predictions after each update and grant.
+3) After each acknowledge ('ack'), verify that the grant is properly retired and the next eligible requestor is granted according to WRR policy.
+4) Check that no grant is lost, duplicated, or skipped during or after back-to-back priority updates and acknowledges, and that all requestors eventually receive grants proportional to their updated priorities.
+5) Explicitly check that priority updates occurring simultaneously with 'ack' do not cause missed or delayed grants.
+6) Explicitly check that no requestor is starved (i.e., every active requestor receives a grant within a bounded number of cycles, as per WRR policy).
+7) Log all grant, priority update, and acknowledge events for post-run analysis.","Functional Coverage:
+1) Cover all possible values of 'prio_id' (0 to N-1) for priority updates.
+2) Cover all possible values of 'prio' (0 to PRIORITY_W-1), with explicit bins for minimum (0) and maximum (PRIORITY_W-1) values for each 'prio_id'.
+3) Cover the cross of ('prio_id', 'prio') for priority updates.
+4) Cover all possible values of 'gnt_id' (0 to N-1) and 'gnt_w' (one-hot for each requestor).
+5) Cover all possible values of 'req' (single, multiple, all active).
+6) Cover all possible legal values of 'ack' (0, 1) in all grant states.
+7) Cover all possible legal values of 'prio_upt' (0, 1) in all grant states.
+8) Cross cover: (a) 'prio_upt' and 'ack' asserted in the same cycle; (b) 'prio_upt' and 'ack' asserted in consecutive cycles; (c) 'prio_upt' and 'ack' asserted with 1-2 cycle gaps.
+9) Cover back-to-back cycles where 'prio_upt' is asserted for the same and different 'prio_id' values.
+10) Cover back-to-back 'ack' for consecutive grants.
+11) Cover scenario where all requestors are active and priorities are updated in quick succession.
+12) Cover scenario where a requestor's priority is updated to min and max values during high load.
+13) Cover scenario where a requestor receives multiple grants after its priority is increased, and fewer grants after its priority is decreased.
+14) Cover scenario where 'rst' is asserted during high activity and system recovers correctly.
+15) Cover the cross of ('req' pattern, 'prio_upt' pattern, 'ack' pattern) to ensure all legal interleavings are exercised.
+Code Coverage:
+- Target 100% toggle and branch coverage for all logic driven by 'prio', 'prio_id', 'prio_upt', 'req', 'ack', 'gnt_id', and 'gnt_w'.",Priority Update Mechanism Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 21)]"
+back_to_back_grant_and_refill_saturation_stress,"Apply repeated and sustained bursts of simultaneous requests from all requestors to saturate the arbiter's grant queue, with both synchronized and randomized acknowledgments, and periodic as well as random priority updates. This scenario stresses the arbiter's ability to handle queue saturation, back-to-back handshakes, transitions into and out of the REPLENISH state, and rapid recovery from backpressure, while ensuring correct grant sequencing, credit management, and dynamic priority handling under heavy load.","1) Drive `clk` continuously throughout the test.
+2) Assert `rst` high for 8 cycles at simulation start (after 5-10 cycles of `clk`), then deassert.
+3) For each burst (repeat for at least 100 bursts or for a randomized number of cycles, e.g., 1000):
+   a) For 16-100 consecutive cycles, drive `req` to all ones (all requestors active).
+   b) For the first half of each burst, keep `ack` low (no acknowledgments); for the second half, assert `ack` high either synchronously or randomly (with at least 50% probability), allowing the arbiter to process grants and refill credits.
+   c) At the midpoint of each burst or on random cycles, assert `prio_upt` high for one cycle, set `prio_id` to a random requestor, and set `prio` to a random legal value (including min and max); otherwise, keep `prio_upt` low.
+   d) Between bursts, insert 4 idle cycles with `req` all zeros and `ack` low.
+   e) Continue to drive `req` with all bits set or random subsets, ensuring at least one requestor is always active during the test.
+4) Repeat the above for enough bursts or cycles to ensure all requestors, priorities, and grant queue states are exercised.","1) For each burst, verify that grants (`gnt_w`, `gnt_id`) are issued only to requestors with asserted `req`.
+2) During periods of no `ack`, confirm that the same grant is held (no new grants issued) and the arbiter cycles through eligible requestors as per round-robin and weight logic.
+3) When `ack` is asserted, verify that grants rotate among requestors according to WRR and updated priorities, and that grants resume correctly after credits are refilled.
+4) After each priority update, check that the next grant reflects the new priority for the updated requestor.
+5) For cycles where the REPLENISH condition is met (no eligible requestors), check that grants are withheld until credits are refilled and eligible requestors are present.
+6) Compare all grant decisions against a golden reference model that tracks the sequence of `req`, `ack`, `prio`, `prio_id`, and `prio_upt` inputs.
+7) At the end of the test, confirm that each requestor was granted at least once in each burst.","Functional Coverage:
+  - Cover all requestors being granted during a burst (each bit of `gnt_w` set at least once per burst).
+  - Cover bins for all requestors being active simultaneously for extended periods.
+  - Cover all possible values of `prio` and `prio_id` during mid-burst and random updates.
+  - Cover the cross of (`req`=all ones, `ack`=0) and (`req`=all ones, `ack`=1) to ensure both backpressure and recovery are exercised.
+  - Cover bins for minimum and maximum values of `prio` during updates.
+  - Cover the case where a priority update causes a different requestor to win the next grant.
+  - Cover the case where all requestors have equal priorities during a burst.
+  - Cover bins for cycles where no grant is issued due to lack of eligible requestors (REPLENISH state).
+  - Cover bins for transitions into and out of the REPLENISH state.
+  - Cover the cross of (`req`, `ack`, `prio_upt`) during and after saturation.
+Code Coverage:
+  - Exercise all FSM transitions, especially ARBITRATION to REPLENISH and back, by varying `req`, `ack`, and `prio_upt` patterns.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16)]"
+arbiter_maximal_concurrent_requests_and_dynamic_priority_update_stress_test,"Apply continuous, randomized, back-to-back requests from all requestors while simultaneously issuing frequent, overlapping priority updates (`prio_upt`) to random requestors. Stress the arbitration and grant encoding logic under maximum throughput and dynamic priority changes, ensuring correct grant sequencing, encoding consistency, and no starvation or deadlock.","1) Continuously drive `clk` throughout the test.
+2) Assert `rst` high for 8 cycles at simulation start, then deassert (set `rst` low).
+3) For a large number of cycles (e.g., 10,000):
+   a) On every cycle, randomize `req` such that all requestors are active (all bits high) at least 80% of the time, and at least two requestors are active at all times.
+   b) Randomly assert `ack` for bursts of 1 to N cycles, followed by random gaps of 0 to 2 cycles, to create back-to-back and closely spaced handshakes, simulating backpressure and recovery.
+   c) On at least 50% of cycles, assert `prio_upt` high, select a random `prio_id`, and drive a random legal value on `prio` (including minimum and maximum values). Ensure all possible values of `prio_id` and `prio` are covered.
+   d) Ensure that `prio_upt` can overlap with `ack` and request activity, and that all input values are protocol-compliant.
+4) Repeat the above for at least 3 different seeds to maximize stimulus diversity.
+5) Log all input and output activity for checking.","1) For each grant (`gnt_w`, `gnt_id`) observed, compare against a golden reference model that tracks all priority updates and requestor activity, ensuring the correct requestor is granted according to current priorities and that grant encoding is consistent (one-hot in `gnt_w` matches `gnt_id`).
+2) After each priority update, verify that the next grant reflects the updated priority for the affected requestor.
+3) Track and log the grant distribution per requestor; check that no requestor is starved (i.e., every active requestor receives at least one grant during the test).
+4) For each cycle where `ack` is low, verify that the grant does not advance to the next requestor (i.e., grant is held or repeated as per protocol).
+5) Log all mismatches and grant transitions for debug and failure analysis.","Functional Coverage:
+  - Cover bin: 'prio_update_min' — `prio` set to minimum value (0) for any requestor.
+  - Cover bin: 'prio_update_max' — `prio` set to maximum value (all 1s) for any requestor.
+  - Cover bin: 'prio_update_all_requestors' — every requestor receives at least one priority update.
+  - Cover bin: 'grant_to_each_requestor' — every requestor receives at least one grant.
+  - Cover bin: 'back_to_back_prio_upt' — two or more consecutive cycles with `prio_upt` asserted.
+  - Cover bin: 'prio_upt_and_ack_overlap' — cycles where both `prio_upt` and `ack` are high.
+  - Cover bin: 'all_req_active' — cycles where all bits of `req` are high.
+  - Cover cycles where ack is asserted for N consecutive cycles (back-to-back grants).
+  - Cover cycles where grant transitions from one requestor to another due to a priority update.
+  - Cross coverage: (prio_upt_active) X (ack_state) X (req_pattern) X (gnt_id) for all requestors.
+Code Coverage:
+  - Ensure all grant selection and priority update logic branches are exercised.
+  - Ensure all possible grant/no-grant transitions are covered.",Synchronous Reset Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 13), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18)]"
+randomized_burst_and_backpressure_recovery_stress_test,"Stress test the arbiter by issuing continuous, back-to-back requests from all requestors, with randomized and dynamic priority updates and randomized acknowledgments. The scenario maximizes throughput and exercises all legal combinations of requests, acknowledgments, and priority updates, while verifying that grant arbitration, grant encoding consistency, and priority update reflection are correct under high load and dynamic conditions. The test ensures that gnt_w and gnt_id always correspond to the same requestor, that no requestor is starved, and that all protocol and grant behaviors are correct even with frequent, interleaved priority changes and handshakes.","1) Drive 'clk' continuously throughout the test.
+2) Assert 'rst' high for 8 cycles after simulation start, then deassert to bring the DUT out of reset.
+3) For a large number of cycles (e.g., 10,000):
+   a) On every cycle, drive 'req' with a random legal value (any combination of asserted request lines, including all, none, or any subset).
+   b) On every cycle, randomly choose whether to assert 'ack' (ensuring at least one grant is acknowledged within every N cycles to avoid deadlock).
+   c) On every cycle, with a configurable probability (e.g., 20-50%), assert 'prio_upt' high and drive 'prio_id' with a random valid requestor ID and 'prio' with a random legal priority value (including min and max values); otherwise, keep 'prio_upt' low.
+   d) Ensure that all combinations of 'req', 'ack', 'prio_upt', 'prio_id', and 'prio' are exercised over the test duration.
+   e) No idle cycles are inserted between transactions; all stimulus is back-to-back and randomized within protocol compliance.","1) For every cycle, check that at most one bit is set in 'gnt_w' (one-hot grant), and that the corresponding 'gnt_id' matches the granted requestor.
+2) For every grant issued, verify that the granted requestor had its 'req' bit asserted in that cycle.
+3) For every priority update ('prio_upt' asserted), confirm that subsequent grants reflect the updated priority for the specified requestor.
+4) For every cycle where a grant is issued, check that the one-hot position of 'gnt_w' matches the value of 'gnt_id'.
+5) Maintain a scoreboard or golden reference model of expected grant behavior (including credit and priority tracking) and compare the observed 'gnt_w' and 'gnt_id' against the model for every cycle.
+6) After test completion, check that every requestor was granted at least once (no starvation).
+7) Log all mismatches between 'gnt_w' and 'gnt_id' for debug and failure analysis.","Functional Coverage:
+  1) Cover all possible values of 'req' (from all zeros to all ones, including single and multiple requestors).
+  2) Cover all possible values of 'prio' (minimum, maximum, and all intermediate values) for each requestor via 'prio_upt'.
+  3) Cover all possible values of 'prio_id' (each requestor ID) during priority updates.
+  4) Cover all possible values of 'gnt_id' (minimum, maximum, and all intermediate IDs).
+  5) Cover all possible one-hot values of 'gnt_w' (each requestor granted).
+  6) Cross coverage of ('req', 'prio_upt', 'ack') to ensure all legal combinations are exercised, including all three asserted in the same cycle.
+  7) Cover bins for minimum and maximum values of all relevant signals: 'req=0', 'req=all_ones', 'prio=0', 'prio=max', 'gnt_id=0', 'gnt_id=max'.
+  8) Cover the case where all requestors are requesting and priorities are all equal, and the case where priorities are maximally skewed.
+  9) Cover bins for back-to-back grants to the same requestor and to different requestors.
+  10) Cover bins for grant starvation (no grant for a requestor for N cycles despite being active).
+Code Coverage:
+  1) Exercise all branches and state transitions in the ARBITRATION and REPLENISH FSM states by varying 'req', 'ack', and 'prio_upt' patterns.
+  2) Ensure all branches of grant selection logic and all priority update paths are exercised.
+  3) Ensure all possible grant/no-grant transitions are covered.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18)]"
+ack_deasserted_mid_grant,"Drive ack low (deasserted) in the middle of a grant sequence to test DUT behavior when the grant is not acknowledged as expected, potentially violating the expected handshake protocol.","1) Drive clk continuously throughout the test.
+2) Assert rst high for 8 cycles, then deassert rst.
+3) After reset, drive req[N-1:0] with a valid one-hot value to request a grant.
+4) Wait for gnt_w and gnt_id to indicate a grant.
+5) Do not assert ack (keep ack low) for several cycles, even though the grant is being issued.
+6) After several cycles, assert ack high for one cycle, then deassert again.
+7) Repeat the process for different requestors by changing req.
+8) Observe gnt_w and gnt_id outputs throughout.","1) For cycles where ack is not asserted despite a grant, check that the DUT does not issue a new grant to another requestor until ack is asserted, as per the expected protocol.
+2) After ack is asserted, check that the DUT advances the grant to the next eligible requestor according to the weighted round robin policy.
+3) Compare observed gnt_w and gnt_id sequences against a golden reference model that expects grant to hold until ack is asserted.","Functional Coverage:
+1) Cover bin: ack held low for minimum number of cycles (e.g., 1 cycle).
+2) Cover bin: ack held low for maximum number of cycles (e.g., >5 cycles).
+3) Cover bin: ack asserted after long deassertion.
+4) Cross coverage: (requestor index) × (ack deassertion duration).
+5) Cover minimum and maximum values of ack deassertion duration.
+6) Cover all possible requestors as grant holders during ack deassertion.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16)]"
+illegal_req_encoding_combined_test,"Drive illegal (non one-hot) values on the req[N-1:0] input vector to verify that the DUT (arbiter) does not grant access or produces a defined error response as per the specification when the request encoding is invalid. This includes driving all zeros, all ones, or multiple bits set (if only one-hot is allowed), and observing that no grant is issued or a defined error response is produced. After several cycles of illegal req, return req to valid one-hot values and observe that normal operation resumes.","1) Drive clk continuously throughout the test.
+2) Assert rst high for 8 cycles, then deassert rst.
+3) After reset, at random cycles, drive req[N-1:0] with illegal encodings (e.g., all zeros, all ones, multiple bits set if only one-hot is allowed, or values outside the valid requestor range if N < width).
+4) Keep ack low and do not assert prio_upt, prio_id, or prio during these cycles; keep prio/prio_id at default values.
+5) Observe gnt_w and gnt_id outputs for any grant or error indication for several cycles after illegal req is driven.
+6) After several cycles of illegal req, return req to valid one-hot values and observe outputs for recovery and normal operation.","1) For each cycle where req is driven with an illegal encoding, check that gnt_w and gnt_id do not indicate a valid grant (i.e., gnt_w is all zeros and gnt_id is not a valid requestor ID or remains unchanged, or other spec-defined behavior).
+2) Compare observed gnt_w and gnt_id against a golden reference model that expects no grant for illegal req encodings.
+3) After returning to valid req encodings, check that the DUT resumes normal grant operation as per the weighted round robin policy.
+4) Log any deviation from expected error handling or grant suppression during illegal req encoding.","Functional Coverage:
+1) Cover bin: req = all zeros (no requestors active).
+2) Cover bin: req = all ones (all requestors active, if not allowed by spec).
+3) Cover bin: req = multiple bits set (if only one-hot allowed).
+4) Cover bin: req = valid one-hot encoding (for recovery check).
+5) Cross coverage: (illegal req encoding) × (gnt_w = 0) × (gnt_id = 0 or unchanged).
+6) Cover minimum and maximum values of req vector.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16)]"
+priority_update_with_illegal_id_and_priority_encoding,"Test the DUT's response when a priority update (`prio_upt`) is issued with an invalid `prio_id` encoding (i.e., a value outside the valid range of requestor IDs, prio_id >= N, where N is the number of requestors). This scenario checks that the DUT does not update any priority, does not grant to an invalid requestor, and does not exhibit any erroneous or undefined output behavior. The priorities of all valid requestors must remain unchanged, and the DUT must continue to operate normally for valid requestors.","1) Drive `clk` continuously throughout the test.
+2) Assert and then deassert `rst` in a protocol-compliant manner to initialize the DUT (e.g., rst high for 5-8 cycles, then deassert).
+3) After reset, drive `req` and `ack` with valid values for at least 2 cycles.
+4) On a rising edge of `clk`, drive `prio_upt` high, set `prio` to any legal value, and set `prio_id` to a value outside the valid range (e.g., prio_id >= N). Hold `prio_upt` high for one cycle, then deassert.
+5) Continue driving `clk`, `req`, and `ack` as normal for several cycles, monitoring outputs `gnt_w` and `gnt_id`.","1) Check that after the invalid priority update attempt, no grant is ever made to a requestor with id >= N (i.e., `gnt_id` never outputs an invalid value, and `gnt_w` never asserts a bit outside [0,N-1]).
+2) Check that the priorities of all valid requestors remain unchanged (requires scoreboard tracking of expected priorities based on legal updates only).
+3) Check that `gnt_w` and `gnt_id` do not exhibit any glitches, undefined, or illegal values in response to the invalid `prio_id` encoding.
+4) Check that the DUT does not hang or enter an undefined state after the invalid update attempt (i.e., continues to grant to valid requestors as per WRR policy).
+5) Log and flag any output transitions that violate one-hot or encoding rules for `gnt_w` and `gnt_id` after the invalid priority update attempt.","Functional Coverage:
+  1) Cover bin: 'prio_upt_with_invalid_id' — at least one cycle where `prio_upt` is high and `prio_id` is outside the valid range (prio_id >= N).
+  2) Cover bin: 'prio_upt_with_valid_id' — at least one cycle where `prio_upt` is high and `prio_id` is in [0, N-1].
+  3) Cover bin: 'gnt_w_undefined_after_invalid_prio_id' — any instance where `gnt_w` is not one-hot or all-zero after invalid `prio_id`.
+  4) Cover bin: 'gnt_id_undefined_after_invalid_prio_id' — any instance where `gnt_id` is outside valid ID range after invalid `prio_id`.
+  5) Cover bin: 'gnt_w_min_value' — `gnt_w` is all zeros after invalid `prio_id`.
+  6) Cover bin: 'gnt_w_max_value' — `gnt_w` is all ones after invalid `prio_id` (should not occur).
+  7) Cross coverage: (prio_upt_with_invalid_id) × (req/ack randomization).
+  8) Cover that gnt_id never outputs an invalid value after an invalid update attempt.
+  9) Cover that gnt_w never asserts a bit outside [0,N-1] after an invalid update attempt.",Synchronous Reset Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 13), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 21)]"
+minimum_and_maximum_priority_update_during_grant_acknowledgment,"Drive ack and prio_upt high in the same cycle, but set prio_id to the currently granted requestor and prio to a value that would reduce its priority below other active requestors. Verify that the DUT does not grant to the deprioritized requestor in the next arbitration cycle, and that no hazard or undefined behavior occurs.","1) Drive clk continuously throughout the test.
+2) Assert rst high for 8 cycles, then deassert rst.
+3) Initialize priorities so that requestor X has the highest priority (by driving prio_upt and prio_id=X, prio=MAX, then waiting for update to take effect).
+4) Drive req[X]=1, req[others]=0, and wait for gnt_id=X.
+5) On the next cycle, drive ack=1 (to acknowledge the grant to X), and simultaneously drive prio_upt=1, prio_id=X, prio=MIN (minimum allowed priority value).
+6) On subsequent cycles, drive req[all]=1 (all requestors active), ack=0, prio_upt=0, and monitor gnt_id and gnt_w for at least N cycles.","1) After the simultaneous ack and prio_upt, check that the next grant is not given to X if other requestors have higher priority.
+2) Check that no grant is made to X until its credit is replenished according to the new (lower) priority.
+3) Check that gnt_id and gnt_w always correspond to valid requestors (within [0, N-1]).
+4) Log grant sequence and compare against expected WRR behavior given the new priorities.","Functional Coverage:
+  - Cover bin: simultaneous_ack_and_prio_upt (ack=1 and prio_upt=1 in same cycle).
+  - Cover bin: prio_id_equals_gnt_id (prio_id matches current gnt_id during update).
+  - Cover bin: prio_min_value (prio=MIN) and prio_max_value (prio=MAX).
+  - Cross: (ack=1) × (prio_upt=1) × (prio_id=gnt_id) × (prio=MIN/MAX).
+  - Cover bin: gnt_id_changes_after_deprioritize (gnt_id switches from X to another requestor after deprioritization).
+  - Cover bin: gnt_id_min (gnt_id=0), gnt_id_max (gnt_id=N-1).",Simultaneous Priority Update and Acknowledge Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 21)]"
+reset_deasserted_mid_cycle,"Test the DUT's behavior when the synchronous reset (`rst`) is deasserted in the middle of a clock cycle, violating the expectation that reset is only sampled on the rising edge of `clk`. This scenario checks for any undefined or erroneous output behavior resulting from this protocol violation.","1) Drive `clk` continuously throughout the test.
+2) Assert `rst` high for at least 4 cycles to ensure proper reset propagation.
+3) During a clock cycle, deassert `rst` (set to 0) at a non-rising edge (e.g., mid-cycle, between two rising edges).
+4) Continue driving `clk` and monitor outputs `gnt_w` and `gnt_id` for at least 4 more cycles.
+5) Optionally, drive random values on `req`, `ack`, `prio`, `prio_id`, and `prio_upt` during and after the reset deassertion to observe any abnormal output behavior.","1) Check that `gnt_w` and `gnt_id` do not exhibit any glitches, undefined, or illegal values immediately after the mid-cycle deassertion of `rst`.
+2) Compare the observed output sequence to a reference model where reset is only deasserted on the rising edge; any deviation is flagged.
+3) Log and flag any output transitions that occur outside of expected clock edges or that violate one-hot or encoding rules for `gnt_w` and `gnt_id`.","Functional Coverage:
+  1) Cover bin: 'rst_deasserted_mid_cycle' — reset deasserted at a non-rising edge of `clk`.
+  2) Cover bin: 'gnt_w_undefined_after_midcycle_rst' — any instance where `gnt_w` is not one-hot or all-zero immediately after mid-cycle reset deassertion.
+  3) Cover bin: 'gnt_id_undefined_after_midcycle_rst' — any instance where `gnt_id` is outside valid ID range after mid-cycle reset deassertion.
+  4) Cover bin: 'gnt_w_min_value' — `gnt_w` is all zeros after reset.
+  5) Cover bin: 'gnt_w_max_value' — `gnt_w` is all ones after reset (should not occur).
+  6) Cross coverage: (rst_deasserted_mid_cycle) × (req/ack/prio/prio_id/prio_upt randomization).",Synchronous Reset Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 13)]"
+grant_output_boundary_requestor_id_and_one_hot_test,"Verify that the one-hot grant output (gnt_w) and the encoded grant ID (gnt_id) always correspond to the same requestor, specifically when the minimum (0) and maximum (N-1) requestor IDs are granted. This checks boundary encoding consistency for the lowest and highest legal requestor IDs.","1) Drive clk continuously for the duration of the test.
+2) Assert rst high for 8 clk cycles, then deassert rst to initialize the DUT.
+3) For minimum requestor ID (0):
+   a) Drive req with only bit 0 set (req = 1 << 0), all other bits 0.
+   b) Wait for gnt_w and gnt_id to indicate a grant.
+   c) Assert ack for one cycle to accept the grant.
+4) For maximum requestor ID (N-1):
+   a) Drive req with only bit N-1 set (req = 1 << (N-1)), all other bits 0.
+   b) Wait for gnt_w and gnt_id to indicate a grant.
+   c) Assert ack for one cycle to accept the grant.
+5) Repeat steps 3 and 4 multiple times, interleaving with random cycles of no requests (req=0) and random ack timing, to ensure robustness at boundaries.","1) For each grant observed, check that exactly one bit is set in gnt_w and that the position of the set bit matches the value of gnt_id.
+2) Specifically, when req=1<<0, check that gnt_w=1<<0 and gnt_id=0.
+3) When req=1<<(N-1), check that gnt_w=1<<(N-1) and gnt_id=N-1.
+4) Log and compare all grant events to a golden reference model that maps one-hot to encoded ID for all boundary cases.","Functional Coverage:
+  1) Cover bin: gnt_id == 0 (minimum requestor ID granted).
+  2) Cover bin: gnt_id == N-1 (maximum requestor ID granted).
+  3) Cover bin: gnt_w == 1<<0 (minimum one-hot grant).
+  4) Cover bin: gnt_w == 1<<(N-1) (maximum one-hot grant).
+  5) Cross coverage: (gnt_id == 0) && (gnt_w == 1<<0), (gnt_id == N-1) && (gnt_w == 1<<(N-1)).
+  6) Cover bin: ack asserted for both minimum and maximum requestor grants.
+  7) Cover bin: req=0 (no requests) and verify no grant is issued.
+Code Coverage:
+  1) Exercise all logic paths for minimum and maximum requestor grant encoding.",Grant Encoding Consistency Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18)]"
+grant_output_stability_under_reset_and_immediate_request_test,"Verify that asserting synchronous reset (`rst` high) under various input and arbitration conditions—including minimum legal duration, during maximum-width requests and priority updates, and in the middle of an arbitration cycle with a pending grant but no acknowledge—correctly initializes all output ports (`gnt_w`, `gnt_id`) to their reset values. Confirm that normal operation resumes on the first clock edge after deassertion, with no spurious grants or lost requests, and that arbitration resumes correctly for all active requests.","1) Drive `clk` continuously for the duration of the test.
+2) For minimum duration case: At time zero, assert `rst` high and hold for exactly one rising edge of `clk` (minimum legal duration). During reset, drive all other input ports (`req`, `ack`, `prio`, `prio_id`, `prio_upt`) to legal values (e.g., all zeros or any valid value), but do not toggle them. After reset deassertion, drive a valid request on `req` and observe outputs.
+3) For high load case: For at least 5 cycles, drive `req` to all ones (maximum legal value), and on each cycle, drive `prio_upt` high with valid `prio` and `prio_id` values (cycling through all legal values). Assert `rst` high for 2 consecutive rising edges of `clk`. During reset, continue to drive `req` to all ones and toggle `prio_upt` with valid values. After reset deassertion, continue driving high activity and observe outputs.
+4) For mid-arbitration case: Drive `req` such that at least one bit is high (active requestor), and keep `ack` low. Wait for the DUT to issue a grant on `gnt_w` and `gnt_id`. Before `ack` is asserted, assert `rst` high for one or more cycles. During reset, keep `req` and `ack` at their previous values. After reset deassertion, re-assert the same request on `req` and observe if a new grant is issued as expected.
+5) For each case, observe and record the values of `gnt_w` and `gnt_id` during and after reset.","1) During the cycle(s) when `rst` is high, check that `gnt_w` is all zeros and `gnt_id` is at its reset value, regardless of input activity or pending grants.
+2) After `rst` is deasserted, check that arbitration resumes and valid grants are produced on `gnt_w` and `gnt_id` corresponding to the active requests.
+3) Check that no spurious or out-of-reset grants are produced during reset.
+4) Check that no requests are lost across the reset boundary, especially when reset occurs with a pending grant.
+5) Log and compare the observed output sequence to the expected reset and post-reset behavior as per the specification.","Functional Coverage:
+  - Cover bin: rst_min_duration_asserted (rst held high for exactly one clk cycle)
+  - Cover bin: rst_long_duration (rst held high for more than one clk cycle)
+  - Cover bin: rst_asserted_during_max_req (rst high while req=all ones)
+  - Cover bin: rst_asserted_during_prio_upt (rst high while prio_upt=1)
+  - Cover bin: rst_asserted_with_pending_grant (rst high when grant issued but ack=0)
+  - Cover bin: gnt_w_reset_value (gnt_w=0 during reset)
+  - Cover bin: gnt_id_reset_value (gnt_id=0 during reset)
+  - Cover bin: post_reset_grant (first grant after reset deassertion)
+  - Cover bin: post_reset_grant_with_max_req (first grant after reset with req=all ones)
+  - Cover bin: post_reset_grant_for_pending_request (grant issued after reset for same request)
+  - Cross coverage: (rst_min_duration_asserted) X (post_reset_grant)
+  - Cross coverage: (rst_long_duration) X (post_reset_grant_with_max_req)
+  - Cross coverage: (rst_asserted_with_pending_grant) X (post_reset_grant_for_pending_request)
+  - Cover bin: req_minimum_value (only one bit set in req after reset)
+  - Cover bin: req_maximum_value (all bits set in req after reset)
+  - Cover bin: gnt_w_minimum_value (only one bit set in gnt_w after reset)
+  - Cover bin: gnt_w_maximum_value (all bits set in gnt_w, if legal)
+  - Cover bin: gnt_id_minimum_value (gnt_id=0 after reset)
+  - Cover bin: gnt_id_maximum_value (gnt_id=maximum legal value after reset)
+  - Cover bin: prio_id_minimum_value (prio_id=0 during prio_upt)
+  - Cover bin: prio_id_maximum_value (prio_id=maximum legal value during prio_upt)
+  - Cover bin: prio_minimum_value (prio=0 during prio_upt)
+  - Cover bin: prio_maximum_value (prio=maximum legal value during prio_upt)
+  - Cover bin: ack_minimum_value (ack=0 during reset)
+  - Cover bin: ack_maximum_value (ack=1 after reset)
+",Synchronous Reset Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 13)]"
+arbiter_no_requestors_and_post_empty_grant_behavior_test,"Verify the arbiter's behavior and grant encoding consistency across transitions between no active requests (starvation), all requestors active (flooding), and normal operation, ensuring correct grant/no-grant behavior, starvation prevention, credit refill, and protocol compliance under minimum, maximum, and mid-range priority settings. The scenario covers transitions from all req=0 to all req=1, periods of no eligible requestors, credit refill boundaries, and dynamic priority updates.","1) Drive clk continuously for the duration of the test.
+2) Assert rst high for 8 cycles, then deassert rst (rst low) to initialize the DUT.
+3) Initialize all requestors with minimum, maximum, and mid-range priority values in sequence (e.g., prio=0, prio=0xF, prio=4 for all requestors), using prio, prio_id, and prio_upt appropriately for each requestor.
+4) For each priority setting:
+   a) Drive req=0 (all requestors inactive) for at least 10 cycles, ack=0, prio_upt=0.
+   b) Observe that no grant is issued (gnt_w=0, gnt_id=0) and credits are refilled as per protocol.
+   c) On the next clk rising edge, simultaneously assert req[N-1:0]=all 1's (all requestors active), keep ack=0, prio_upt=0.
+   d) For each grant observed on gnt_w/gnt_id, drive ack=1 for one cycle, then ack=0 for the next cycle, until all requestors have been granted at least once.
+   e) Alternate between periods of all req=0 and all req=1 multiple times, including random ack assertion and dynamic priority updates (prio/prio_id/prio_upt) during flooding.
+5) Throughout, ensure prio_upt is only asserted when updating priorities, and prio/prio_id are valid only during those cycles.","1) During periods when req=0, check that no grant is issued (gnt_w=0, gnt_id=0) and credits are refilled as per protocol.
+2) For each transition from req=0 to req=all 1's, check that each requestor is eventually granted (gnt_w and gnt_id reflect each requestor at least once before any requestor is granted a second time, unless weights dictate otherwise).
+3) For all priority settings, confirm that no requestor is starved (i.e., every requestor receives a grant within a bounded number of cycles after asserting its request).
+4) During flooding, for each grant, check that gnt_w is one-hot and gnt_id matches the granted requestor.
+5) For each ack, ensure the next grant is issued to a different requestor as per arbitration policy.
+6) Scoreboard: Compare observed grant sequence before, during, and after no-request periods to ensure protocol compliance.
+7) Confirm that no protocol violations (e.g., grant issued with no active request, multiple bits set in gnt_w, gnt_id out of range) occur during the test.","Functional Coverage:
+- Coverpoint: req transitions from all 0's to all 1's and vice versa.
+- Coverpoint: prio values at minimum (0), maximum (0xF), and mid-range (e.g., 4) for all requestors.
+- Coverpoint: Each requestor is granted at least once after the transition.
+- Coverpoint: ack toggling pattern (ack=1 for one cycle per grant).
+- Cover bin: req[N-1:0]=all 0's for at least 5 cycles.
+- Cover bin: gnt_w=0, gnt_id=0 observed during no-request period.
+- Cover bin: req[N-1:0]=all 1's reasserted after no-request period.
+- Cover bin: Each gnt_id value observed at least once after the transition.
+- Cross: (prio value: min/max/mid) X (req pattern: all 0's to all 1's) X (gnt_id: all possible values).
+- Cross coverage: (no-request period) X (grant observed before/after).
+- Cover bin: ack=1 occurs for grants before and after no-request period.
+- Cover bin: gnt_w one-hot for all possible requestors during flooding.
+- Cover bin: gnt_id cycles through all legal values during flooding.
+Code Coverage:
+- Exercise all logic paths for no requests, all requests, and dynamic priority update conditions.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18)]"
+priority_update_during_credit_refill_corner_case,"Verify the arbiter's behavior when all requestors have exhausted their credits and continue to assert requests, causing the arbiter to enter the REPLENISH state (as inferred from output behavior), and a priority update is issued in the same cycle as the refill. Ensure that grants are suppressed for one cycle, credits are refilled using the updated priority value, and granting resumes correctly. This scenario targets the edge case where all requestors are requesting but none are eligible due to zero credits, and a priority update occurs coincident with the refill event.","1) Drive clk continuously for the duration of the test.
+2) Assert rst high for 8 cycles, then deassert rst (rst low) to initialize the DUT.
+3) Set all prio values to a mid-range value (e.g., prio=2 for all requestors) using prio, prio_id, prio_upt.
+4) Assert req=all 1's (all requestors active), ack=0, prio_upt=0.
+5) For each grant observed (gnt_w/gnt_id), assert ack=1 for one cycle, then ack=0, and continue until no grant is observed (gnt_w=0, gnt_id=0).
+6) In the cycle where no grant is issued (i.e., refill occurs), assert prio_upt high, set prio_id to a selected requestor, and set prio to a new legal value (e.g., minimum or maximum).
+7) Continue to assert req=all 1's and observe that grants resume, confirming credit refill and that the updated priority is used for the selected requestor.
+8) Repeat with prio values set to their maximum (0xF) and minimum (0) for all requestors, and perform the priority update for different requestors.","1) Check that after a sequence of grants, there is exactly one cycle where gnt_w=0 and gnt_id=0, corresponding to the credit refill event.
+2) Confirm that after the no-grant cycle, grants resume and all requestors are again eligible for grants.
+3) Check that the new priority value is used for credit refill and reflected in the number of grants issued to the updated requestor in the next arbitration window.
+4) Compare the number of grants observed after refill to the expected number based on the updated priority value.
+5) Log the sequence of grants and verify that the grant pattern restarts after the refill cycle, and that gnt_w is always one-hot or zero (during refill), and matches gnt_id when nonzero.","Functional Coverage:
+- Coverpoint: gnt_w=0 and gnt_id=0 observed for exactly one cycle during continuous requests.
+- Coverpoint: req=all 1's maintained across credit exhaustion and refill.
+- Coverpoint: prio values at min (0), mid (2), and max (0xF) for all requestors.
+- Cover bin: prio_update_during_refill (when prio_upt is asserted in the same cycle as no grant is issued/refill occurs)
+- Cover bin: prio_update_with_min_value (when prio=0)
+- Cover bin: prio_update_with_max_value (when prio=max legal value)
+- Cover bin: refill_for_each_requestor (when refill occurs for each legal prio_id)
+- Cross: (prio value: min/mid/max) X (credit refill event) X (gnt_id: all possible values)
+- Cross coverage: (prio_update_during_refill) X (prio_update_with_min_value/prio_update_with_max_value) X (refill_for_each_requestor)
+- Bin: Each requestor receives a grant before and after the refill event.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19)]"
+minimum_and_maximum_priority_update_during_grant_acknowledgment,"Verify correct arbiter and grant encoding behavior when a priority update (prio_upt, prio, prio_id) and a grant acknowledge (ack) are asserted in the same cycle, for all combinations of requestors, including when the update targets the currently granted requestor or another requestor, and for both minimum and maximum legal priority values. This covers edge and boundary cases where grant acceptance and arbitration parameter change coincide, ensuring no hazard, loss of update, or protocol violation.","1) Drive clk continuously for the duration of the test.
+2) Assert rst high for 8 cycles, then deassert rst (rst low) to initialize the DUT.
+3) Initialize all requestors with valid requests (e.g., req[N-1:0]=all 1's or req=0011 for N=4) and set initial priorities to mid-range or non-boundary values via prio/prio_id/prio_upt sequences as required.
+4) Wait for a grant to be issued (observe gnt_w and gnt_id).
+5) On a cycle where ack=1 is asserted for the current grant, simultaneously assert prio_upt=1, set prio_id to either the currently granted requestor (gnt_id) or another active requestor, and set prio to a legal value (minimum=0, maximum=all 1's, or mid-range).
+6) On subsequent cycles, deassert prio_upt and ack, and continue driving req as before.
+7) Repeat the process for all requestors, for both minimum and maximum prio values, and for cases where prio_id matches or differs from gnt_id.
+8) Log all grant and priority update events for analysis.","1) After simultaneous ack and prio update, check that the priority update is applied to the correct requestor and takes effect in the next arbitration cycle as per protocol.
+2) Verify that the grant output (gnt_w, gnt_id) reflects the updated priority in subsequent cycles, with no skipped, duplicated, or lost grants.
+3) Check that gnt_w is always one-hot and matches gnt_id after each update.
+4) Scoreboard: Compare observed grant sequence (gnt_id, gnt_w) against a golden reference model that accounts for simultaneous ack and prio update events.
+5) Confirm that no grant encoding inconsistency or protocol violation occurs due to simultaneous ack and priority update, including when prio_id matches gnt_id.","Functional Coverage:
+- Cover bin: prio_upt=1 and ack=1 in the same cycle (simultaneous update/acknowledge).
+- Cover bin: prio_id targets each requestor, including the currently granted one (prio_id==gnt_id) and others (prio_id!=gnt_id).
+- Cover bin: prio updated to minimum (0), maximum (all 1's), and mid-range values.
+- Cross coverage: (prio value: min/max/mid) X (ack & prio_upt overlap) X (prio_id==gnt_id / prio_id!=gnt_id) X (gnt_id: all possible values).
+- Cover bin: Each requestor receives a grant after its priority is updated at the grant boundary.
+- Cover bin: gnt_w and gnt_id reflect updated priorities in subsequent grants.
+- Cover bin: No grant or priority update is lost or skipped due to simultaneous assertion.",Simultaneous Priority Update and Acknowledge Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 21)]"
+minimum_and_maximum_priority_update_corner_case_combined,"Verify correct arbiter and grant encoding behavior when priorities are dynamically and repeatedly updated to minimum and maximum legal values for different requestors under continuous, simultaneous requests (req=all 1's), including rapid and back-to-back updates. Ensure that grant decisions and encodings track the most recent priority updates, that no requestor is starved, and that grant outputs remain consistent and one-hot. This scenario covers edge cases of rapid arbitration parameter changes, flooding of priority updates, and boundary value analysis for priority registers.","1) Drive clk continuously for the duration of the test.
+2) Assert rst high for 8 cycles, then deassert rst (rst low) to initialize the DUT.
+3) Initialize all requestors to mid-range priority values (e.g., prio=4 for all) using prio, prio_id, prio_upt.
+4) Drive req=all 1's (all requestors active), ack=0, prio_upt=0.
+5) For N cycles, in each cycle:
+   a) Select a requestor (either in round-robin or randomly).
+   b) Update its priority to either minimum (0) or maximum (0xF) value, alternating or randomly, using prio, prio_id, prio_upt.
+   c) Assert prio_upt for one cycle with valid prio/prio_id.
+6) For each grant observed (gnt_w/gnt_id), assert ack=1 for one cycle, then ack=0.
+7) Continue this process for enough cycles to ensure each requestor's priority is updated to both min and max values at least once, and that each requestor receives at least one grant after each update.
+8) After all updates, continue to drive req=all 1's and observe grant rotation and encoding for several cycles.","1) After each priority update, check that the next grant reflects the updated priority (i.e., the requestor with the highest priority is granted next).
+2) Confirm that all requestors are granted at least once after their priority is updated to both min and max values (no starvation).
+3) Check that gnt_w is always one-hot and matches gnt_id for every grant.
+4) Scoreboard: Compare observed grant sequence (gnt_id, gnt_w) against expected behavior based on current priorities and protocol (weighted round robin).
+5) Specifically check for grant encoding consistency and absence of protocol violations (e.g., grant to non-requesting requestor, multiple grants, or encoding mismatches).","Functional Coverage:
+- Coverpoint: prio updated to minimum (0) and maximum (0xF) for each requestor.
+- Coverpoint: req=all 1's maintained throughout the test.
+- Coverpoint: Each requestor receives a grant after its priority is updated to min and max.
+- Cross: (prio value: min/max) X (gnt_id: all possible values).
+- Bin: Each requestor's prio updated to 0 and 0xF at least once.
+- Bin: Each requestor receives a grant after both min and max prio updates.
+- Cover bin: prio_upt asserted every cycle for N cycles (flooding case).
+- Cover bin: ack asserted in the same cycle as a grant.
+- Cover bin: gnt_w one-hot and matches gnt_id for all grants.
+- Cross coverage: (prio set to min/max) && (gnt_id==prio_id) for each requestor.
+- Code Coverage: Exercise logic paths for rapid priority changes under high load.",Arbitration and Grant Progress Verification,"[('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 3), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 4), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 9), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 10), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 14), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 16), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 17), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 18), ('Micro_Architecture_Specification_Weighted_Round_Robin.pdf', 19)]"
