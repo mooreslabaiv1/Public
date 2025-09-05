@@ -36,4 +36,16 @@ module weighted_round_robin_tb_top;
     run_test();
   end
 
+  // ToDo: Do not edit the below code
+  initial begin
+    string testname;
+
+    if (!$value$plusargs("UVM_TESTNAME=%s", testname)) begin
+      testname = "default";
+    end
+
+    $dumpfile($sformatf("testbench_%s.vcd", testname));
+    $dumpvars(0, weighted_round_robin_tb_top);
+  end
+
 endmodule

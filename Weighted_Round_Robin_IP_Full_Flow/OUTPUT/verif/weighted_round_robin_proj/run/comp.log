@@ -2,7 +2,7 @@ Command: vcs -full64 -timescale=1ns/1ns -sverilog -l comp.log -ntb_opts uvm -f r
 -f tb.f ../top/weighted_round_robin_tb_top.sv -cm line+tgl+cond+branch+fsm -cm_dir \
 ./coverage_data
                          Chronologic VCS (TM)
-         Version W-2024.09_Full64 -- Wed Aug 20 15:44:50 2025
+         Version W-2024.09_Full64 -- Fri Sep  5 09:09:01 2025
 
                     Copyright (c) 1991 - 2024 Synopsys, Inc.
    This software and the associated documentation are proprietary to Synopsys,
@@ -527,6 +527,14 @@ Top Level Modules:
        weighted_round_robin_tb_top
 TimeScale is 1 ns / 1 ns
 VCS Coverage Metrics Release W-2024.09_Full64 Copyright (c) 1991-2024 by Synopsys Inc.
+
+Warning-[INTFDV] VCD dumping of interface/program/package
+../top/weighted_round_robin_tb_top.sv, 48
+  Selective VCD dumping of interface 'clk_rst_if' is not supported.  Selective
+  VCD dumping for interfaces, packages and programs is not supported.
+  Use full VCD dumping '$dumpvars(0)', or use VPD or FSDB dumping, recompile 
+  with '-debug_access'.
+
 Starting vcs inline pass...
 18 modules and 0 UDP read.
 recompiling package vcs_paramclassrepository
@@ -548,8 +556,10 @@ recompiling package clk_rst_seq_pkg
 recompiling package weighted_round_robin_test_pkg
 recompiling module weighted_round_robin_tb_top
 All of 18 modules done
-make[1]: Entering directory '/home/lucas-kisabeth/MooresLabAI/mooreplatformbe/mooreCube/workspace/tmp/weighted_round_robin_proj/run/csrc' \
+make[1]: Entering directory '/home/alex-navarro/github/Public/Weighted_Round_Robin_IP_Full_Flow/OUTPUT/verif/weighted_round_robin_proj/run/csrc' \
 
+cat: '../elabMhIdDidWork.txt_*': No such file or directory
+ls: cannot access '../elabMhIdDidWork.txt_*': No such file or directory
 rm -f _cuarc*.so _csrc*.so pre_vcsobj_*.so share_vcsobj_*.so
 g++ -w  -pipe -DVCS -DUVM_DPI_DO_TYPE_CHECK -fPIC -O -I/usr/synopsys/vcs/W-2024.09/include \
 -c /usr/synopsys/vcs/W-2024.09/etc/uvm/dpi/uvm_dpi.cc
@@ -557,13 +567,13 @@ if [ -x ../simv ]; then chmod a-x ../simv; fi
 g++  -o ../simv   -no-pie    -rdynamic  -Wl,-rpath='$ORIGIN'/simv.daidir -Wl,-rpath=./simv.daidir \
 -Wl,-rpath=/usr/synopsys/vcs/W-2024.09/linux64/lib -L/usr/synopsys/vcs/W-2024.09/linux64/lib \
 -z noexecstack  -Wl,-rpath-link=./ -Wl,--no-as-needed  /usr/synopsys/vcs/W-2024.09/linux64/lib/vpdlogstub.o \
-uvm_dpi.o   objs/amcQw_d.o  _159880_archive_1.so  SIM_l.o      rmapats_mop.o rmapats.o \
+uvm_dpi.o   objs/amcQw_d.o  _2449909_archive_1.so  SIM_l.o      rmapats_mop.o rmapats.o \
 rmar.o rmar_nd.o  rmar_llvm_0_1.o rmar_llvm_0_0.o            -lvirsim -lerrorinf \
 -lsnpsmalloc -lvfs    -lvcsnew -lsimprofile -lreader_common /usr/synopsys/vcs/W-2024.09/linux64/lib/libBA.a \
 -luclinative /usr/synopsys/vcs/W-2024.09/linux64/lib/vcs_tls.o   -Wl,-whole-archive \
 -lvcsucli    -Wl,-no-whole-archive      ./../simv.daidir/vc_hdrs.o    /usr/synopsys/vcs/W-2024.09/linux64/lib/vcs_save_restore_new.o \
 -ldl  -lc -lm -lpthread -ldl 
 ../simv up to date
-make[1]: Leaving directory '/home/lucas-kisabeth/MooresLabAI/mooreplatformbe/mooreCube/workspace/tmp/weighted_round_robin_proj/run/csrc' \
+make[1]: Leaving directory '/home/alex-navarro/github/Public/Weighted_Round_Robin_IP_Full_Flow/OUTPUT/verif/weighted_round_robin_proj/run/csrc' \
 
-CPU time: 3.596 seconds to compile + .203 seconds to elab + .435 seconds to link
+CPU time: 3.858 seconds to compile + .246 seconds to elab + .368 seconds to link

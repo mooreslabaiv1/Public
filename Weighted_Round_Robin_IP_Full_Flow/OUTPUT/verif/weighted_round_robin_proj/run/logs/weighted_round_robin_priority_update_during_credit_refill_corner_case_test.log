@@ -1,7 +1,7 @@
-Command: /home/lucas-kisabeth/MooresLabAI/mooreplatformbe/mooreCube/workspace/tmp/weighted_round_robin_proj/run/./simv -l sim.log +vcs+cm_report -cm line+tgl+cond+branch+fsm -cm_dir ./coverage_data +UVM_TIMEOUT=3000000 +ntb_random_seed= +UVM_TESTNAME=weighted_round_robin_priority_update_during_credit_refill_corner_case_test -l logs/weighted_round_robin_priority_update_during_credit_refill_corner_case_test.log -cm_name weighted_round_robin_priority_update_during_credit_refill_corner_case_test
+Command: /home/alex-navarro/github/Public/Weighted_Round_Robin_IP_Full_Flow/OUTPUT/verif/weighted_round_robin_proj/run/./simv -l sim.log +vcs+cm_report -cm line+tgl+cond+branch+fsm -cm_dir ./coverage_data +UVM_TIMEOUT=3000000 +ntb_random_seed= +UVM_TESTNAME=weighted_round_robin_priority_update_during_credit_refill_corner_case_test -l logs/weighted_round_robin_priority_update_during_credit_refill_corner_case_test.log -cm_name weighted_round_robin_priority_update_during_credit_refill_corner_case_test
 Chronologic VCS simulator copyright 1991-2024
 Contains Synopsys proprietary information.
-Compiler version W-2024.09_Full64; Runtime version W-2024.09_Full64;  Aug 20 15:44 2025
+Compiler version W-2024.09_Full64; Runtime version W-2024.09_Full64;  Sep  5 09:09 2025
 
 Warning-[INV-RANDSEED-VAL] Invalid random seed value
   Invalid random seed value passed through command line or environment 
@@ -16842,5 +16842,5 @@ VCS Coverage Metrics: during simulation line, cond, FSM, branch, tgl was monitor
 ---------------------------------------------------------------------------
            V C S   S i m u l a t i o n   R e p o r t 
 Time: 2823 ns
-CPU Time:      0.210 seconds;       Data structure size:   0.5Mb
-Wed Aug 20 15:45:00 2025
+CPU Time:      0.250 seconds;       Data structure size:   0.5Mb
+Fri Sep  5 09:09:16 2025

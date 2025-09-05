@@ -1,9 +1,0 @@
-{"vcs1":{"timestamp_begin":1755719090.357261947, "rt":3.62, "ut":3.38, "st":0.14}}
-{"vcselab":{"timestamp_begin":1755719094.055602223, "rt":0.26, "ut":0.12, "st":0.05}}
-{"link":{"timestamp_begin":1755719094.393534748, "rt":0.38, "ut":0.25, "st":0.13}}
-{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1755719089.950130907}
-{"VCS_COMP_START_TIME": 1755719089.950130907}
-{"VCS_COMP_END_TIME": 1755719094.866117479}
-{"VCS_USER_OPTIONS": "-full64 -timescale=1ns/1ns -sverilog -l comp.log -ntb_opts uvm -f rtl.f -f tb.f ../top/weighted_round_robin_tb_top.sv -cm line+tgl+cond+branch+fsm -cm_dir ./coverage_data"}
-{"vcs1": {"peak_mem": 351108}}
-{"vcselab": {"peak_mem": 161652}}
