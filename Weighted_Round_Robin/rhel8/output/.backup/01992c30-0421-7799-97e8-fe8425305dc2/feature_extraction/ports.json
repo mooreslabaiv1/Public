@@ -1,0 +1,11 @@
+[
+  "port_name='ack' direction='input' original_port_name='ack' protocol_ref=[] width_expr='[]' is_vector=False comments='Round Robin Interface \u2013 Handshake: 1 means \"accepted\" this cycle'",
+  "port_name='clk' direction='input' original_port_name='clk' protocol_ref=[] width_expr='[]' is_vector=False comments='Misc'",
+  "port_name='gnt_id' direction='output' original_port_name='gnt_id' protocol_ref=[] width_expr='[ID_BITS-1:0]' is_vector=True comments='Round Robin Interface \u2013 Encoded ID of granted request'",
+  "port_name='gnt_w' direction='output' original_port_name='gnt_w' protocol_ref=[] width_expr='[N-1:0]' is_vector=True comments='Round Robin Interface \u2013 One-hot grant'",
+  "port_name='prio' direction='input' original_port_name='prio' protocol_ref=[] width_expr='[PRIORITY_W-1:0]' is_vector=True comments='Dynamic Priority/Weight Update Interface \u2013 New priority value'",
+  "port_name='prio_id' direction='input' original_port_name='prio_id' protocol_ref=[] width_expr='[ID_BITS-1:0]' is_vector=True comments='Dynamic Priority/Weight Update Interface \u2013 Which requestor to update'",
+  "port_name='prio_upt' direction='input' original_port_name='prio_upt' protocol_ref=[] width_expr='[]' is_vector=False comments='Dynamic Priority/Weight Update Interface \u2013 Update strobe'",
+  "port_name='req' direction='input' original_port_name='req' protocol_ref=[] width_expr='[N-1:0]' is_vector=True comments='Round Robin Interface \u2013 Request signals'",
+  "port_name='rst' direction='input' original_port_name='rst' protocol_ref=[] width_expr='[]' is_vector=False comments='Misc'"
+]
